@@ -19,6 +19,10 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation(compose.desktop.currentOs)
+
+    // Koin - https://insert-koin.io
+    val koinVersion = "3.1.3"
+    implementation("io.insert-koin:koin-core:$koinVersion")
 }
 
 tasks.test {

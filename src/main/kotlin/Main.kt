@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import di.setupDependencyInjection
 import ui.chess.BlackPieces
 import ui.chess.WhitePieces
 import ui.home.MainScreen
@@ -18,18 +19,22 @@ import ui.home.MainScreen
 fun App() {
     var text by remember { mutableStateOf("Hello, World!") }
 
-//    DesktopMaterialTheme {
-//        Button(onClick = {
-//            text = "Hello, Desktop!"
-//        }) {
-//            Text(text)
-//        }
-//    }
+    DesktopMaterialTheme {
+        Button(onClick = {
+            text = "Hello, Desktop!"
+        }) {
+            Text(text)
+        }
+    }
 
-    MainScreen()
+//    MainScreen()
 }
 
 fun main() = application {
+    // Application Setup
+    setupDependencyInjection()
+
+    // Entry point to UI
     Window(onCloseRequest = ::exitApplication) {
         App()
     }
