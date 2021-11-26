@@ -1,7 +1,4 @@
-import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,24 +7,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import di.setupDependencyInjection
-import ui.chess.BlackPieces
-import ui.chess.WhitePieces
-import ui.home.MainScreen
+import ui.chess.AllSquaresPreview
+import ui.chess.BoardWithPiecesPreview
+import ui.chess.EmptyBoardPreview
 
 @Composable
 @Preview
 fun App() {
     var text by remember { mutableStateOf("Hello, World!") }
 
-    DesktopMaterialTheme {
-        Button(onClick = {
-            text = "Hello, Desktop!"
-        }) {
-            Text(text)
-        }
-    }
-
+//    DesktopMaterialTheme {
+//        Button(onClick = {
+//            text = "Hello, Desktop!"
+//        }) {
+//            Text(text)
+//        }
+//    }
+//    AllSquaresPreview()
 //    MainScreen()
+    BoardWithPiecesPreview()
 }
 
 fun main() = application {
@@ -35,7 +33,10 @@ fun main() = application {
     setupDependencyInjection()
 
     // Entry point to UI
-    Window(onCloseRequest = ::exitApplication) {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Play Chess and Have Fun"
+    ) {
         App()
     }
 }

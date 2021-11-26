@@ -5,15 +5,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.svgResource
 import java.io.File
 
 @Composable
-fun King(isWhite: Boolean = true) {
+fun King(
+    isWhite: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     val svgPath = if (isWhite) {
         "icons/king-white.svg"
     } else {
@@ -21,12 +26,16 @@ fun King(isWhite: Boolean = true) {
     }
     Image(
         painter = painterResource(svgPath),
-        contentDescription = "King piece"
+        contentDescription = "King piece",
+        modifier = modifier.fillMaxSize(fraction = 0.8f)
     )
 }
 
 @Composable
-fun Queen(isWhite: Boolean = true) {
+fun Queen(
+    isWhite: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     val svgPath = if (isWhite) {
         "icons/queen-white.svg"
     } else {
@@ -34,12 +43,16 @@ fun Queen(isWhite: Boolean = true) {
     }
     Image(
         painter = painterResource(svgPath),
-        contentDescription = "Queen piece"
+        contentDescription = "Queen piece",
+        modifier = modifier.fillMaxSize(fraction = 0.8f)
     )
 }
 
 @Composable
-fun Knight(isWhite: Boolean = true) {
+fun Knight(
+    isWhite: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     val svgPath = if (isWhite) {
         "icons/knight-white.svg"
     } else {
@@ -47,13 +60,16 @@ fun Knight(isWhite: Boolean = true) {
     }
     Image(
         painter = painterResource(svgPath),
-        contentDescription = "Knight piece"
+        contentDescription = "Knight piece",
+        modifier = modifier.fillMaxSize(fraction = 0.8f)
     )
-
 }
 
 @Composable
-fun Bishop(isWhite: Boolean = true) {
+fun Bishop(
+    isWhite: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     val svgPath = if (isWhite) {
         "icons/bishop-white.svg"
     } else {
@@ -61,12 +77,16 @@ fun Bishop(isWhite: Boolean = true) {
     }
     Image(
         painter = painterResource(svgPath),
-        contentDescription = "Bishop piece"
+        contentDescription = "Bishop piece",
+        modifier = modifier.fillMaxSize(fraction = 0.8f)
     )
 }
 
 @Composable
-fun Rook(isWhite: Boolean = true) {
+fun Rook(
+    isWhite: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     val svgPath = if (isWhite) {
         "icons/rook-white.svg"
     } else {
@@ -74,12 +94,16 @@ fun Rook(isWhite: Boolean = true) {
     }
     Image(
         painter = painterResource(svgPath),
-        contentDescription = "Rook piece"
+        contentDescription = "Rook piece",
+        modifier = modifier.fillMaxSize(fraction = 0.8f)
     )
 }
 
 @Composable
-fun Pawn(isWhite: Boolean = true) {
+fun Pawn(
+    isWhite: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     val svgPath = if (isWhite) {
         "icons/pawn-white.svg"
     } else {
@@ -87,7 +111,8 @@ fun Pawn(isWhite: Boolean = true) {
     }
     Image(
         painter = painterResource(svgPath),
-        contentDescription = "Pawn piece"
+        contentDescription = "Pawn piece",
+        modifier = modifier.fillMaxSize(fraction = 0.8f)
     )
 }
 
