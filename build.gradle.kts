@@ -23,6 +23,11 @@ dependencies {
     // Koin - https://insert-koin.io
     val koinVersion = "3.1.3"
     implementation("io.insert-koin:koin-core:$koinVersion")
+
+    // Ktor Client - https://github.com/ktorio/ktor
+    val ktorVersion = "1.6.5"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
 }
 
 tasks.test {

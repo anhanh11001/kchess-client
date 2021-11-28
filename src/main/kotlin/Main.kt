@@ -7,9 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import di.setupDependencyInjection
-import ui.chess.AllSquaresPreview
-import ui.chess.BoardWithPiecesPreview
-import ui.chess.EmptyBoardPreview
+import ui.game.GameScreen
 
 @Composable
 @Preview
@@ -23,9 +21,7 @@ fun App() {
 //            Text(text)
 //        }
 //    }
-//    AllSquaresPreview()
-//    MainScreen()
-    BoardWithPiecesPreview()
+    GameScreen()
 }
 
 fun main() = application {

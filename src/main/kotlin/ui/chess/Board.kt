@@ -4,6 +4,7 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,15 +14,14 @@ import data.ChessPiece
 
 @Composable
 fun ChessBoard(
-    locationToChessPiece: Map<String, ChessPiece>
+    locationToChessPiece: Map<String, ChessPiece>,
+    modifier: Modifier = Modifier
 ) {
     val rowNames = "12345678"
     val colNames = "abcdefgh"
 
     Box(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .fillMaxHeight(0.8f)
+        modifier = modifier.aspectRatio(1f)
     ) {
         Row(modifier = Modifier.matchParentSize()) {
             colNames.forEachIndexed { colIndex, col ->
@@ -38,6 +38,7 @@ fun ChessBoard(
                         Square(
                             isWhite = isSquareWhite,
                             chessPiece = chessPiece,
+                            squareLocation = location,
                             modifier = Modifier.fillMaxHeight(1f).weight(1f)
                         )
                     }
@@ -50,23 +51,27 @@ fun ChessBoard(
 @Composable
 fun Square(
     isWhite: Boolean,
+    squareLocation: String? = null,
     chessPiece: ChessPiece? = null,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .background(if (isWhite) Color.White else Color.DarkGray)
-            .aspectRatio(1f),
-        contentAlignment = Alignment.Center
-    ) {
-        when (chessPiece) {
-            is ChessPiece.King -> King(chessPiece.isWhite)
-            is ChessPiece.Queen -> Queen(chessPiece.isWhite)
-            is ChessPiece.Bishop -> Bishop(chessPiece.isWhite)
-            is ChessPiece.Knight -> Knight(chessPiece.isWhite)
-            is ChessPiece.Rook -> Rook(chessPiece.isWhite)
-            is ChessPiece.Pawn -> Pawn(chessPiece.isWhite)
-            null -> {
+    key(squareLocation) {
+        Box(
+            modifier = modifier
+                .background(if (isWhite) Color.White else Color.DarkGray)
+                .aspectRatio(1f),
+            contentAlignment = Alignment.Center,
+
+            ) {
+            when (chessPiece) {
+                is ChessPiece.King -> King(chessPiece.isWhite)
+                is ChessPiece.Queen -> Queen(chessPiece.isWhite)
+                is ChessPiece.Bishop -> Bishop(chessPiece.isWhite)
+                is ChessPiece.Knight -> Knight(chessPiece.isWhite)
+                is ChessPiece.Rook -> Rook(chessPiece.isWhite)
+                is ChessPiece.Pawn -> Pawn(chessPiece.isWhite)
+                null -> {
+                }
             }
         }
     }
@@ -97,7 +102,7 @@ fun AllSquaresPreview() {
                     chessPiece = piece,
                     modifier = Modifier.width(100.dp)
                 )
-                Square(isWhite = true, chessPiece = piece, Modifier.width(100.dp))
+                Square(isWhite = true, chessPiece = piece, modifier = Modifier.width(100.dp))
             }
         }
 
