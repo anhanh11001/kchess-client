@@ -1,0 +1,4 @@
+package domain
+
+class GetGameByGameIdUseCase {
+}

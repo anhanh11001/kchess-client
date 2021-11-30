@@ -22,17 +22,15 @@ import ui.chess.ChessBoard
 import ui.users.Avatar
 
 @Composable
-fun GameScreen() {
+fun GameScreen(modifier: Modifier = Modifier) {
     val blackPlayer = MockPlayers.MAGNUS_CARLSEN
     val whitePlayer = MockPlayers.FABIANO_CARUANA
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         BoardSection(
             boardMapping = BoardRepresentation.DEFAULT_BOARD_MAP,
             blackPlayer = blackPlayer,
             whitePlayer = whitePlayer,
-            modifier = Modifier.padding(16.dp).fillMaxHeight()
+            modifier = modifier.padding(16.dp).fillMaxHeight()
         )
     }
 }

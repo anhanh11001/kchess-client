@@ -17,10 +17,15 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onNewGameClicked: () -> Unit,
+    onFindRoomClicked: () -> Unit,
+    onExitClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize().padding(32.dp)
+        modifier = modifier.fillMaxSize().padding(32.dp)
     ) {
         Image(
             painter = painterResource("icons/chess_game_icon.svg"),
@@ -32,23 +37,17 @@ fun MainScreen() {
         GameIcon(modifier = Modifier.padding(bottom = 32.dp))
         MainScreenButton(
             title = "New Game",
-            onClick = {
-
-            }
+            onClick = onNewGameClicked
         )
 
         MainScreenButton(
             title = "Find Room",
-            onClick = {
-
-            }
+            onClick = onFindRoomClicked
         )
 
         MainScreenButton(
             title = "Exit",
-            onClick = {
-
-            }
+            onClick = onExitClicked
         )
     }
 }

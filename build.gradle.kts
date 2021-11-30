@@ -28,6 +28,12 @@ dependencies {
     val ktorVersion = "1.6.5"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
+
+    // Decompose - https://arkivanov.github.io/Decompose/
+    val decomposeVersion = "0.3.1"
+    implementation("com.arkivanov.decompose:decompose:$decomposeVersion")
+    implementation("com.arkivanov.decompose:extensions-compose-jetbrains:$decomposeVersion")
+
 }
 
 tasks.test {
