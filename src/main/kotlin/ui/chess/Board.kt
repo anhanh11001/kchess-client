@@ -3,7 +3,6 @@ package ui.chess
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -17,12 +16,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.*
 import data.BoardRepresentation
 import data.ChessPiece
 import ui.components.KChessSmallRoundedCorner
+
+const val CHESS_PIECE_RATIO_WITHIN_SQUARE = 0.8f
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -33,20 +34,29 @@ fun ChessBoard(
     val rowNames = "12345678"
     val colNames = "abcdefgh"
 
-    fun determineChessSquareFromPosition(position: Offset, boxSize: IntSize): String {
+    fun determineChessSquareFromPosition(position: Offset, boxSize: IntSize): String? {
         val colIndex = (position.x / (boxSize.height / 8f)).toInt()
         val rowIndex = 7 - (position.y / (boxSize.width / 8f)).toInt()
+        if (rowIndex < 0 || rowIndex >= 8 || colIndex < 0 || rowIndex >= 8) {
+            return null
+        }
         return "${rowNames[rowIndex]}${colNames[colIndex]}"
     }
 
     var locationMap by remember { mutableStateOf(locationToChessPiece) }
     var movingPiece by remember { mutableStateOf<ChessPiece?>(null) }
+    var pointerLocation by remember { mutableStateOf(Offset(0f, 0f)) }
+    var pieceSize by remember { mutableStateOf(0f) }
 
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .onPointerEvent(PointerEventType.Press) {
-                val pressedSquare = determineChessSquareFromPosition(currentEvent.changes[0].position, size)
+                val pressedSquare =
+                    determineChessSquareFromPosition(
+                        currentEvent.changes[0].position,
+                        size
+                    ) ?: return@onPointerEvent
                 val piece = locationMap[pressedSquare]
                 if (piece != null) {
                     val newLocationMap = locationMap.toMutableMap()
@@ -56,7 +66,10 @@ fun ChessBoard(
                 }
             }
             .onPointerEvent(PointerEventType.Release) {
-                val releasedSquare = determineChessSquareFromPosition(currentEvent.changes[0].position, size)
+                val releasedSquare = determineChessSquareFromPosition(
+                    currentEvent.changes[0].position,
+                    size
+                ) ?: return@onPointerEvent
                 val movedPiece = movingPiece
                 if (movedPiece != null) {
                     val newLocationMap = locationMap.toMutableMap()
@@ -65,7 +78,13 @@ fun ChessBoard(
                     movingPiece = null
                 }
             }
+            .onPointerEvent(PointerEventType.Move) {
+                pointerLocation = currentEvent.changes[0].position
+            }
             .clip(KChessSmallRoundedCorner())
+            .onSizeChanged {
+                pieceSize = it.width / 8 * CHESS_PIECE_RATIO_WITHIN_SQUARE
+            }
     ) {
         Row(modifier = Modifier.matchParentSize()) {
             colNames.forEachIndexed { colIndex, col ->
@@ -89,6 +108,19 @@ fun ChessBoard(
                 }
             }
         }
+
+        if (pointerLocation.y - pieceSize / 2 >= 0 &&
+            pointerLocation.x - pieceSize / 2 >= 0
+        ) {
+            ChessPieceUI(
+                movingPiece,
+                modifier = Modifier.padding(
+                    top = with(LocalDensity.current) { (pointerLocation.y - pieceSize / 2).toDp() },
+                    start = with(LocalDensity.current) { (pointerLocation.x - pieceSize / 2).toDp() })
+                    .width(with(LocalDensity.current) { pieceSize.toDp() })
+                    .height(with(LocalDensity.current) { pieceSize.toDp() })
+            )
+        }
     }
 }
 
@@ -105,19 +137,21 @@ fun Square(
                 .background(if (isWhite) Color.White else Color.DarkGray)
                 .aspectRatio(1f),
             contentAlignment = Alignment.Center,
-
-            ) {
-            when (chessPiece) {
-                is ChessPiece.King -> King(chessPiece.isWhite)
-                is ChessPiece.Queen -> Queen(chessPiece.isWhite)
-                is ChessPiece.Bishop -> Bishop(chessPiece.isWhite)
-                is ChessPiece.Knight -> Knight(chessPiece.isWhite)
-                is ChessPiece.Rook -> Rook(chessPiece.isWhite)
-                is ChessPiece.Pawn -> Pawn(chessPiece.isWhite)
-                null -> {
-                }
-            }
+        ) {
+            ChessPieceUI(chessPiece)
         }
+    }
+}
+
+@Composable
+fun ChessPieceUI(chessPiece: ChessPiece?, modifier: Modifier = Modifier) = when (chessPiece) {
+    is ChessPiece.King -> King(chessPiece.isWhite, modifier)
+    is ChessPiece.Queen -> Queen(chessPiece.isWhite, modifier)
+    is ChessPiece.Bishop -> Bishop(chessPiece.isWhite, modifier)
+    is ChessPiece.Knight -> Knight(chessPiece.isWhite, modifier)
+    is ChessPiece.Rook -> Rook(chessPiece.isWhite, modifier)
+    is ChessPiece.Pawn -> Pawn(chessPiece.isWhite, modifier)
+    null -> {
     }
 }
 

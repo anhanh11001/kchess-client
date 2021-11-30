@@ -21,7 +21,7 @@ fun King(
     Image(
         painter = painterResource(svgPath),
         contentDescription = "King piece",
-        modifier = modifier.fillMaxSize(fraction = 0.8f)
+        modifier = modifier.fillMaxSize(fraction = CHESS_PIECE_RATIO_WITHIN_SQUARE)
     )
 }
 
@@ -38,7 +38,7 @@ fun Queen(
     Image(
         painter = painterResource(svgPath),
         contentDescription = "Queen piece",
-        modifier = modifier.fillMaxSize(fraction = 0.8f)
+        modifier = modifier.fillMaxSize(fraction = CHESS_PIECE_RATIO_WITHIN_SQUARE)
     )
 }
 
@@ -55,7 +55,7 @@ fun Knight(
     Image(
         painter = painterResource(svgPath),
         contentDescription = "Knight piece",
-        modifier = modifier.fillMaxSize(fraction = 0.8f)
+        modifier = modifier.fillMaxSize(fraction = CHESS_PIECE_RATIO_WITHIN_SQUARE)
     )
 }
 
@@ -72,7 +72,7 @@ fun Bishop(
     Image(
         painter = painterResource(svgPath),
         contentDescription = "Bishop piece",
-        modifier = modifier.fillMaxSize(fraction = 0.8f)
+        modifier = modifier.fillMaxSize(fraction = CHESS_PIECE_RATIO_WITHIN_SQUARE)
     )
 }
 
@@ -89,7 +89,7 @@ fun Rook(
     Image(
         painter = painterResource(svgPath),
         contentDescription = "Rook piece",
-        modifier = modifier.fillMaxSize(fraction = 0.8f)
+        modifier = modifier.fillMaxSize(fraction = CHESS_PIECE_RATIO_WITHIN_SQUARE)
     )
 }
 
@@ -106,7 +106,7 @@ fun Pawn(
     Image(
         painter = painterResource(svgPath),
         contentDescription = "Pawn piece",
-        modifier = modifier.fillMaxSize(fraction = 0.8f)
+        modifier = modifier.fillMaxSize(fraction = CHESS_PIECE_RATIO_WITHIN_SQUARE)
     )
 }
 
