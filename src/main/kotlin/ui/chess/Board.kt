@@ -7,10 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import data.BoardRepresentation
 import data.ChessPiece
+import ui.components.KChessSmallRoundedCorner
 
 @Composable
 fun ChessBoard(
@@ -21,7 +23,7 @@ fun ChessBoard(
     val colNames = "abcdefgh"
 
     Box(
-        modifier = modifier.aspectRatio(1f)
+        modifier = modifier.aspectRatio(1f).clip(KChessSmallRoundedCorner())
     ) {
         Row(modifier = Modifier.matchParentSize()) {
             colNames.forEachIndexed { colIndex, col ->

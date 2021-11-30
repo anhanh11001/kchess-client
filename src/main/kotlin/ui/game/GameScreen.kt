@@ -4,13 +4,17 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.*
 import data.Player
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import common.TimeFormatter
 import data.BoardRepresentation
 import data.ChessPiece
@@ -19,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import ui.chess.ChessBoard
+import ui.components.KChessSmallRoundedCorner
 import ui.users.Avatar
 
 @Composable
@@ -42,11 +47,14 @@ fun BoardSection(
     whitePlayer: Player,
     modifier: Modifier = Modifier
 ) {
+    var widthLimit by remember { mutableStateOf(0) }
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.weight(1f).padding(bottom = 8.dp)
+            modifier = Modifier
+                .weight(1f)
+                .widthIn(max = with(LocalDensity.current) { widthLimit.toDp() })
         ) {
-            PlayerBar(player = blackPlayer)
+            PlayerBar(player = blackPlayer, modifier = Modifier.weight(1f))
             Timer(
                 startingTimeInSeconds = 600,
                 isWhite = false
@@ -55,10 +63,17 @@ fun BoardSection(
 
         ChessBoard(
             locationToChessPiece = boardMapping,
-            modifier = Modifier.weight(16f).padding(bottom = 8.dp)
+            modifier = Modifier
+                .weight(16f)
+                .padding(bottom = 8.dp, top = 8.dp)
+                .onSizeChanged { widthLimit = it.width }
         )
-        Row(modifier = Modifier.weight(1f)) {
-            PlayerBar(player = whitePlayer)
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .widthIn(max = with(LocalDensity.current) { widthLimit.toDp() })
+        ) {
+            PlayerBar(player = whitePlayer, modifier = Modifier.weight(1f))
             Timer(
                 startingTimeInSeconds = 600,
                 isWhite = true
@@ -80,7 +95,7 @@ fun PlayerBar(
     ) {
         Avatar(
             imageUrl = player.imageUrl,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.fillMaxHeight().clip(KChessSmallRoundedCorner())
         )
         Text(
             text = formattedPlayerTitle,
@@ -105,7 +120,7 @@ fun Timer(
                 emit(Unit)
             }
         }.collect {
-            timeInSeconds--
+            timeInSeconds = (timeInSeconds - 1).coerceAtLeast(0)
         }
     }
 
@@ -113,7 +128,7 @@ fun Timer(
         modifier = modifier
             .fillMaxHeight()
             .aspectRatio(2.5f)
-            .padding(8.dp)
+            .clip(KChessSmallRoundedCorner())
             .background(if (isWhite) Color.White else Color.Black)
             .alpha(0.8f),
         contentAlignment = Alignment.CenterEnd
@@ -122,7 +137,7 @@ fun Timer(
         Text(
             text = TimeFormatter.formatTimeInMillisToReadableString(timeInSeconds),
             color = if (isWhite) Color.DarkGray else Color.LightGray,
-            modifier = Modifier.offset(x = -8.dp)
+            modifier = Modifier.offset(x = (-8).dp)
         )
     }
 }

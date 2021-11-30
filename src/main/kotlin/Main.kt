@@ -61,4 +61,6 @@ fun PreviewSpace() {
 //            Text(text)
 //        }
 //    }
+    GameScreen()
+
 }
