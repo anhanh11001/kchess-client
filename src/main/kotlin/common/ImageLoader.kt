@@ -10,12 +10,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import io.ktor.client.*
 import io.ktor.client.request.*
-import org.jetbrains.skija.Image
+import org.jetbrains.skia.Image
 import org.koin.java.KoinJavaComponent.inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.ContentScale
-import io.ktor.client.engine.cio.*
 
 suspend fun loadPicture(url: String): Result<ImageBitmap> {
     val client: HttpClient by inject(HttpClient::class.java)

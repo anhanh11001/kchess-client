@@ -3,8 +3,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.21"
-    id("org.jetbrains.compose") version "1.0.0-alpha3"
+    kotlin("jvm") version "1.5.31"
+    id("org.jetbrains.compose") version "1.0.0-rc3"
 }
 
 group = "me.user"
@@ -30,7 +30,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     // Decompose - https://arkivanov.github.io/Decompose/
-    val decomposeVersion = "0.3.1"
+    val decomposeVersion = "0.4.0"
     implementation("com.arkivanov.decompose:decompose:$decomposeVersion")
     implementation("com.arkivanov.decompose:extensions-compose-jetbrains:$decomposeVersion")
 

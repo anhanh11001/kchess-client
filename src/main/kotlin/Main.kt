@@ -1,35 +1,24 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.window.ApplicationScope
-import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.arkivanov.decompose.extensions.compose.jetbrains.Children
-import com.arkivanov.decompose.push
+import com.arkivanov.decompose.router.push
 import di.setupDependencyInjection
 import navigation.NavScreen
 import navigation.rememberRouter
 import ui.game.GameScreen
-import ui.game.MockPlayerBar
 import ui.home.MainScreen
 
+const val PREVIEWING = true
 
 @Composable
 @Preview
 fun App(onExitApplication: () -> Unit) {
-//    var text by remember { mutableStateOf("Hello, World!") }
-
-//    DesktopMaterialTheme {
-//        Button(onClick = {
-//            text = "Hello, Desktop!"
-//        }) {
-//            Text(text)
-//        }
-//    }
+    if (PREVIEWING) {
+        PreviewSpace()
+        return
+    }
     val router = rememberRouter<NavScreen>(initialConfiguration = { NavScreen.Main })
 
     Children(routerState = router.state) { screen ->
@@ -59,4 +48,17 @@ fun main() = application {
     ) {
         App(::exitApplication)
     }
+}
+
+@Composable
+fun PreviewSpace() {
+//    var text by remember { mutableStateOf("Hello, World!") }
+
+//    DesktopMaterialTheme {
+//        Button(onClick = {
+//            text = "Hello, Desktop!"
+//        }) {
+//            Text(text)
+//        }
+//    }
 }
