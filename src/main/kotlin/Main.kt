@@ -4,6 +4,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.arkivanov.decompose.extensions.compose.jetbrains.Children
 import com.arkivanov.decompose.router.push
+import com.sun.tools.javac.Main
 import di.setupDependencyInjection
 import navigation.NavScreen
 import navigation.rememberRouter
@@ -61,6 +62,16 @@ fun PreviewSpace() {
 //            Text(text)
 //        }
 //    }
-    GameScreen()
+    MainScreen(
+        onNewGameClicked = {
+
+        },
+        onExitClicked = {
+
+        },
+        onFindRoomClicked = {
+
+        }
+    )
 
 }

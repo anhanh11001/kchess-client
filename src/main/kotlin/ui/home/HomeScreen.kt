@@ -33,22 +33,9 @@ fun MainScreen(
             contentScale = ContentScale.FillWidth,
             modifier = Modifier.fillMaxWidth(0.4f)
         )
-
-        GameIcon(modifier = Modifier.padding(bottom = 32.dp))
-        MainScreenButton(
-            title = "New Game",
-            onClick = onNewGameClicked
-        )
-
-        MainScreenButton(
-            title = "Find Room",
-            onClick = onFindRoomClicked
-        )
-
-        MainScreenButton(
-            title = "Exit",
-            onClick = onExitClicked
-        )
+        MainScreenButton(title = "New Game", onClick = onNewGameClicked)
+        MainScreenButton(title = "Find Room", onClick = onFindRoomClicked)
+        MainScreenButton(title = "Exit", onClick = onExitClicked)
     }
 }
 
@@ -64,13 +51,6 @@ fun MainScreenButton(
     ) {
         Text(title)
     }
-}
-
-@Composable
-fun GameIcon(
-    modifier: Modifier = Modifier
-) {
-
 }
 
 @Preview
