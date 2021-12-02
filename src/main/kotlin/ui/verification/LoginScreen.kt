@@ -16,6 +16,8 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun LoginScreen(
+    onSignUpNewUserSelected: () -> Unit,
+    onLoggedIn: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -29,6 +31,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(0.4f)
         )
         LoginWithCredentialsSection(
+            onLoggedInAsGuestSelected = onLoggedIn,
             modifier = Modifier.fillMaxWidth(0.4f)
         )
     }
@@ -36,6 +39,7 @@ fun LoginScreen(
 
 @Composable
 fun LoginWithCredentialsSection(
+    onLoggedInAsGuestSelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -90,9 +94,7 @@ fun LoginWithCredentialsSection(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
         )
         Button(
-            onClick = {
-
-            },
+            onClick = onLoggedInAsGuestSelected,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Log in as Guest")

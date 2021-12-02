@@ -14,7 +14,7 @@ import ui.verification.LoginScreen
 import ui.verification.SignupScreen
 import ui.verification.SignupSection
 
-const val PREVIEWING = true
+const val PREVIEWING = false
 
 @Composable
 @Preview
@@ -23,7 +23,7 @@ fun App(onExitApplication: () -> Unit) {
         PreviewSpace()
         return
     }
-    val router = rememberRouter<NavScreen>(initialConfiguration = { NavScreen.Main })
+    val router = rememberRouter<NavScreen>(initialConfiguration = { NavScreen.Login })
 
     Children(routerState = router.state) { screen ->
         when (val configuration = screen.configuration) {
@@ -36,6 +36,19 @@ fun App(onExitApplication: () -> Unit) {
 
                 },
                 onExitClicked = onExitApplication
+            )
+            is NavScreen.Signup -> SignupScreen(
+                onSignUpFinished = {
+                    router.push(NavScreen.Main)
+                }
+            )
+            is NavScreen.Login -> LoginScreen(
+                onLoggedIn = {
+                    router.push(NavScreen.Main)
+                },
+                onSignUpNewUserSelected = {
+                    router.push(NavScreen.Signup)
+                }
             )
         }
     }
@@ -65,5 +78,5 @@ fun PreviewSpace() {
 //            Text(text)
 //        }
 //    }
-    SignupScreen()
+    GameScreen()
 }

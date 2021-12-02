@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SignupScreen(
+    onSignUpFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
