@@ -20,14 +20,14 @@ class DetermineValidDiagonalMoveUseCase {
 
         for (distance in 1 until rowDiff) {
             val checkedSquareRow = if (rowIncreasing) {
-                startingPosition[0] + distance
-            } else {
-                startingPosition[0] - distance
-            }
-            val checkedSquareCol = if (colIncreasing) {
                 startingPosition[1] + distance
             } else {
                 startingPosition[1] - distance
+            }
+            val checkedSquareCol = if (colIncreasing) {
+                startingPosition[0] + distance
+            } else {
+                startingPosition[0] - distance
             }
             if (boardPosition["$checkedSquareCol$checkedSquareRow"] != null) {
                 return false

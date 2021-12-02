@@ -48,10 +48,11 @@ class GameViewModel(
             boardPosition = currentGameState.boardPosition,
             chessMove = chessMove
         )
-        if (!isValidMove) {
-
-        } else {
-
+        if (isValidMove) {
+            val newBoardPosition = currentGameState.boardPosition.toMutableMap()
+            newBoardPosition.remove(chessMove.startingPosition)
+            newBoardPosition[chessMove.endingPosition] = chessMove.chessPiece
+            gameUIStateFlow.value = currentGameState.copy(boardPosition = newBoardPosition)
         }
     }
 }

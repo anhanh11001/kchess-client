@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import common.TimeFormatter
 import data.chess.BoardRepresentation
+import data.chess.ChessMove
 import data.chess.ChessPiece
 import data.mock.MockPlayers
 import kotlinx.coroutines.delay
@@ -31,13 +32,16 @@ fun GameScreen(
     gameViewModel: GameViewModel,
     modifier: Modifier = Modifier
 ) {
-    val blackPlayer = MockPlayers.MAGNUS_CARLSEN
-    val whitePlayer = MockPlayers.FABIANO_CARUANA
+    val gameUIState = gameViewModel.gameUIStateFlow.collectAsState()
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         BoardSection(
-            boardMapping = BoardRepresentation.DEFAULT_BOARD_MAP,
-            blackPlayer = blackPlayer,
-            whitePlayer = whitePlayer,
+            boardMapping = gameUIState.value.boardPosition,
+            blackPlayer = gameUIState.value.blackPlayer,
+            whitePlayer = gameUIState.value.whitePlayer,
+            onNewMoveMade = {
+                gameViewModel.onNextMove(it)
+            },
             modifier = modifier.padding(16.dp).fillMaxHeight()
         )
         GameStatisticsAndActionsSection(
@@ -274,6 +278,7 @@ fun BoardSection(
     boardMapping: Map<String, ChessPiece>,
     blackPlayer: Player,
     whitePlayer: Player,
+    onNewMoveMade: (ChessMove) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var widthLimit by remember { mutableStateOf(0) }
@@ -295,7 +300,8 @@ fun BoardSection(
             modifier = Modifier
                 .weight(16f)
                 .padding(bottom = 8.dp, top = 8.dp)
-                .onSizeChanged { widthLimit = it.width }
+                .onSizeChanged { widthLimit = it.width },
+            onNewMoveMade = onNewMoveMade
         )
         Row(
             modifier = Modifier

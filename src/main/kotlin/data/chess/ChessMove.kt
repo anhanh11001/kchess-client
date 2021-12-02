@@ -1,7 +1,6 @@
 package data.chess
 
 data class ChessMove(
-    val moveFromWhitePlayer: Boolean,
     val chessPiece: ChessPiece,
     val startingPosition: String,
     val endingPosition: String,

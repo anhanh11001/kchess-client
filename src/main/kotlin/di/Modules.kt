@@ -32,6 +32,8 @@ val domainModule = module {
     factory { DetermineCorrectMoveBasedOnGameStatusUseCase() }
     factory { GetGameByGameIdUseCase() }
     factory { GetPlayerByIdUseCase() }
+    factory { DetermineValidStraightMoveUseCase() }
+    factory { DetermineValidDiagonalMoveUseCase() }
     factory {
         DetermineValidMoveUseCase(
             get(),

@@ -2,7 +2,6 @@ package domain
 
 import data.chess.ChessMove
 import data.chess.ChessPiece
-import data.chess.MoveType
 import kotlin.math.abs
 
 class DetermineCorrectKnightMoveUseCase {

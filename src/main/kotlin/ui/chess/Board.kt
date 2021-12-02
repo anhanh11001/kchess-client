@@ -19,7 +19,9 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.*
 import data.chess.BoardRepresentation
+import data.chess.ChessMove
 import data.chess.ChessPiece
+import data.chess.MoveType
 import ui.components.KChessSmallRoundedCorner
 import ui.components.convertToDp
 
@@ -29,6 +31,7 @@ const val CHESS_PIECE_RATIO_WITHIN_SQUARE = 0.8f
 @Composable
 fun ChessBoard(
     locationToChessPiece: Map<String, ChessPiece>,
+    onNewMoveMade: (ChessMove) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val rowNames = "12345678"
@@ -43,23 +46,30 @@ fun ChessBoard(
         return "${colNames[colIndex]}${rowNames[rowIndex]}"
     }
 
-    var locationMap by remember { mutableStateOf(locationToChessPiece) }
+    var movingPieceInitialLocation: String? by remember { mutableStateOf(null) }
     var movingPiece by remember { mutableStateOf<ChessPiece?>(null) }
     var pointerLocation by remember { mutableStateOf(Offset(0f, 0f)) }
     var pieceSize by remember { mutableStateOf(0f) }
+
+    var locationMap by remember { mutableStateOf(emptyMap<String, ChessPiece>()) }
+    val chessBoardPositionMap = locationToChessPiece.toMutableMap()
+    if (movingPieceInitialLocation != null) {
+        chessBoardPositionMap.remove(movingPieceInitialLocation)
+    }
+    locationMap = chessBoardPositionMap
 
     Box(
         modifier = modifier
             .aspectRatio(1f)
             .onPointerEvent(PointerEventType.Press) {
-                val pressedSquare =
-                    determineChessSquareFromPosition(
-                        currentEvent.changes[0].position,
-                        size
-                    ) ?: return@onPointerEvent
+                val pressedSquare = determineChessSquareFromPosition(
+                    currentEvent.changes[0].position,
+                    size
+                ) ?: return@onPointerEvent
                 val piece = locationMap[pressedSquare]
                 if (piece != null) {
                     val newLocationMap = locationMap.toMutableMap()
+                    movingPieceInitialLocation = pressedSquare
                     newLocationMap.remove(pressedSquare)
                     locationMap = newLocationMap
                     movingPiece = piece
@@ -71,10 +81,22 @@ fun ChessBoard(
                     size
                 ) ?: return@onPointerEvent
                 val movedPiece = movingPiece
-                if (movedPiece != null) {
+                val movedPieceInitialLocation = movingPieceInitialLocation
+                if (movedPiece != null && movedPieceInitialLocation != null) {
                     val newLocationMap = locationMap.toMutableMap()
-                    newLocationMap[releasedSquare] = movedPiece
+                    newLocationMap[movedPieceInitialLocation] = movedPiece
                     locationMap = newLocationMap
+
+                    onNewMoveMade(
+                        ChessMove(
+                            chessPiece = movedPiece,
+                            startingPosition = movedPieceInitialLocation,
+                            endingPosition = releasedSquare,
+                            moveType = MoveType.Normal
+                        )
+                    )
+
+                    movingPieceInitialLocation = null
                     movingPiece = null
                 }
             }
@@ -188,11 +210,11 @@ fun AllSquaresPreview() {
 @Preview
 @Composable
 fun EmptyBoardPreview() {
-    ChessBoard(emptyMap())
+    ChessBoard(emptyMap(), {})
 }
 
 @Preview
 @Composable
 fun BoardWithPiecesPreview() {
-    ChessBoard(BoardRepresentation.DEFAULT_BOARD_MAP)
+    ChessBoard(BoardRepresentation.DEFAULT_BOARD_MAP, {})
 }

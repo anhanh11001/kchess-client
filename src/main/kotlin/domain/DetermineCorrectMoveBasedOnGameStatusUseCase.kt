@@ -12,10 +12,10 @@ class DetermineCorrectMoveBasedOnGameStatusUseCase {
         if (gameStatus != GameStatus.WHITE_TURN || gameStatus != GameStatus.BLACK_TURN) {
             return false
         }
-        if (gameStatus == GameStatus.BLACK_TURN && chessMove.moveFromWhitePlayer) {
+        if (gameStatus == GameStatus.BLACK_TURN && !chessMove.chessPiece.isWhite) {
             return false
         }
-        if (gameStatus == GameStatus.WHITE_TURN && !chessMove.moveFromWhitePlayer) {
+        if (gameStatus == GameStatus.WHITE_TURN && chessMove.chessPiece.isWhite) {
             return false
         }
         return true

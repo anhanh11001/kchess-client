@@ -20,14 +20,11 @@ class DetermineValidMoveUseCase(
         boardPosition: Map<String, ChessPiece>,
         chessMove: ChessMove
     ): Boolean {
-        if (!determineCorrectMoveBasedOnGameStatusUseCase(gameStatus, chessMove)) {
-            return false
-        }
+//        if (!determineCorrectMoveBasedOnGameStatusUseCase(gameStatus, chessMove)) {
+//            return false
+//        }
 
         if (boardPosition[chessMove.startingPosition] != chessMove.chessPiece) {
-            return false
-        }
-        if (chessMove.moveFromWhitePlayer != chessMove.chessPiece.isWhite) {
             return false
         }
         val isChessPieceDirectionValid = when (chessMove.chessPiece) {
@@ -43,7 +40,7 @@ class DetermineValidMoveUseCase(
         val isKingStillSafe = determineKingIsSafeAfterMakingAMoveUseCase(
             chessMove = chessMove,
             boardPosition = boardPosition,
-            isWhiteKing = chessMove.moveFromWhitePlayer
+            isWhiteKing = chessMove.chessPiece.isWhite
         )
         if (!isKingStillSafe) return false
 

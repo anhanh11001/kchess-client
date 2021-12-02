@@ -28,7 +28,6 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
             val piece = requireNotNull(boardPosition[location])
             if (piece.isWhite == isWhiteKing) continue
             val captureTheKingMove = ChessMove(
-                moveFromWhitePlayer = !isWhiteKing,
                 chessPiece = piece,
                 startingPosition = location,
                 endingPosition = kingPosition,

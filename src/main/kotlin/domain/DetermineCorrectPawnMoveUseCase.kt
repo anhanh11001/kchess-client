@@ -23,8 +23,8 @@ class DetermineCorrectPawnMoveUseCase {
                 when {
                     startPosition[0] - endPosition[0] == 0 -> determineValidStraightPawnMove(
                         isWhitePawn = chessPiece.isWhite,
-                        startingRow = startPosition[0].digitToInt(),
-                        endingRow = endPosition[0].digitToInt(),
+                        startingRow = startPosition[1].digitToInt(),
+                        endingRow = endPosition[1].digitToInt(),
                         col = startPosition[0],
                         boardPosition = boardPosition
                     )
@@ -78,7 +78,7 @@ class DetermineCorrectPawnMoveUseCase {
         endingCol: Char,
         boardPosition: Map<String, ChessPiece>
     ): Boolean {
-        val endPosition = "$endingCol$endingCol"
+        val endPosition = "$endingCol$endingRow"
         if (isWhitePawn) {
             if (startingRow < 2 || startingRow > 6) return false
             if (endingRow - startingRow != 1) return false
@@ -86,7 +86,7 @@ class DetermineCorrectPawnMoveUseCase {
                 // TODO: En Passant
                 false
             } else {
-                boardPosition[endPosition]!!.isWhite
+                !requireNotNull(boardPosition[endPosition]).isWhite
             }
         } else {
             if (startingRow > 7 || startingRow < 3) return false
@@ -95,7 +95,7 @@ class DetermineCorrectPawnMoveUseCase {
                 // TODO: En Passant
                 false
             } else {
-                !boardPosition[endPosition]!!.isWhite
+                requireNotNull(boardPosition[endPosition]).isWhite
             }
         }
     }

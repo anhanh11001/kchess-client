@@ -37,29 +37,29 @@ class DetermineValidStraightMoveUseCase {
                 }
 
                 val pieceInEndingPosition = boardPosition[endingPosition]
-                return pieceInEndingPosition == null || (isMovedPieceWhite == pieceInEndingPosition.isWhite)
+                return pieceInEndingPosition == null || (isMovedPieceWhite != pieceInEndingPosition.isWhite)
             }
             rowDiff == 0 -> {
-                val colIncreasing = startingPosition[1] < endingPosition[1]
-                val startingIndex = if (colIncreasing) {
-                    startingPosition[0].digitToInt() + 1
+                val colIncreasing = startingPosition[0] < endingPosition[0]
+                val startingIndex: Int = if (colIncreasing) {
+                    startingPosition[0] - 'a' + 1
                 } else {
-                    endingPosition[0].digitToInt() + 1
+                    endingPosition[0] - 'a' + 1
                 }
-                val endingIndex = if (colIncreasing) {
-                    endingPosition[0].digitToInt()
+                val endingIndex: Int = if (colIncreasing) {
+                    endingPosition[0] - 'a'
                 } else {
-                    startingPosition[0].digitToInt()
+                    startingPosition[0] - 'a'
                 }
 
                 for (i in startingIndex until endingIndex) {
-                    if (boardPosition["$i${startingPosition[1]}"] != null) {
+                    if (boardPosition["${'a' + i}${startingPosition[1]}"] != null) {
                         return false
                     }
                 }
 
                 val pieceInEndingPosition = boardPosition[endingPosition]
-                return pieceInEndingPosition == null || (isMovedPieceWhite == pieceInEndingPosition.isWhite)
+                return pieceInEndingPosition == null || (isMovedPieceWhite != pieceInEndingPosition.isWhite)
 
             }
             else -> return false
