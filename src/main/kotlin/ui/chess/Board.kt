@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.*
-import data.BoardRepresentation
-import data.ChessPiece
+import data.chess.BoardRepresentation
+import data.chess.ChessPiece
 import ui.components.KChessSmallRoundedCorner
 import ui.components.convertToDp
 
@@ -40,7 +40,7 @@ fun ChessBoard(
         if (rowIndex < 0 || rowIndex >= 8 || colIndex < 0 || rowIndex >= 8) {
             return null
         }
-        return "${rowNames[rowIndex]}${colNames[colIndex]}"
+        return "${colNames[colIndex]}${rowNames[rowIndex]}"
     }
 
     var locationMap by remember { mutableStateOf(locationToChessPiece) }
@@ -94,7 +94,7 @@ fun ChessBoard(
                         .weight(1f)
                 ) {
                     rowNames.reversed().forEachIndexed { rowIndex, row ->
-                        val location = "$row$col"
+                        val location = "$col$row"
                         val chessPiece = locationMap.getOrDefault(location, null)
                         val isSquareWhite = (colIndex + rowIndex) % 2 == 0
 

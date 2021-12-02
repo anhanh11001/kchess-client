@@ -6,9 +6,13 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.Children
 import com.arkivanov.decompose.router.push
 import com.sun.tools.javac.Main
 import di.setupDependencyInjection
+import io.ktor.client.*
 import navigation.NavScreen
 import navigation.rememberRouter
+import org.koin.java.KoinJavaComponent
+import org.koin.java.KoinJavaComponent.inject
 import ui.game.GameScreen
+import ui.game.GameViewModel
 import ui.home.MainScreen
 import ui.verification.LoginScreen
 import ui.verification.SignupScreen
@@ -24,10 +28,11 @@ fun App(onExitApplication: () -> Unit) {
         return
     }
     val router = rememberRouter<NavScreen>(initialConfiguration = { NavScreen.Login })
+    val gameViewModel: GameViewModel by inject(GameViewModel::class.java)
 
     Children(routerState = router.state) { screen ->
         when (val configuration = screen.configuration) {
-            is NavScreen.GameScreen -> GameScreen()
+            is NavScreen.GameScreen -> GameScreen(gameViewModel)
             is NavScreen.Main -> MainScreen(
                 onNewGameClicked = {
                     router.push(NavScreen.GameScreen(gameId = 100L))
@@ -78,5 +83,7 @@ fun PreviewSpace() {
 //            Text(text)
 //        }
 //    }
-    GameScreen()
+
+    val gameViewModel: GameViewModel by inject(GameViewModel::class.java)
+    GameScreen(gameViewModel = gameViewModel)
 }

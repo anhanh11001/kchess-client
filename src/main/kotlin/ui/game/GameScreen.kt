@@ -1,7 +1,6 @@
 package ui.game
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import common.TimeFormatter
-import data.BoardRepresentation
-import data.ChessPiece
+import data.chess.BoardRepresentation
+import data.chess.ChessPiece
 import data.mock.MockPlayers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -28,7 +27,10 @@ import ui.components.convertToDp
 import ui.users.Avatar
 
 @Composable
-fun GameScreen(modifier: Modifier = Modifier) {
+fun GameScreen(
+    gameViewModel: GameViewModel,
+    modifier: Modifier = Modifier
+) {
     val blackPlayer = MockPlayers.MAGNUS_CARLSEN
     val whitePlayer = MockPlayers.FABIANO_CARUANA
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -39,7 +41,7 @@ fun GameScreen(modifier: Modifier = Modifier) {
             modifier = modifier.padding(16.dp).fillMaxHeight()
         )
         GameStatisticsAndActionsSection(
-            moveSequences = listOf("1f", "1b", "2c", "3d", "4d"),
+            moveSequences = listOf("f1", "b1", "c2", "d3", "d4"),
             onDrawSelected = {
 
             },
