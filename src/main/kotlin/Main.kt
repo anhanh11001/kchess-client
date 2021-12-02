@@ -11,6 +11,8 @@ import navigation.rememberRouter
 import ui.game.GameScreen
 import ui.home.MainScreen
 import ui.verification.LoginScreen
+import ui.verification.SignupScreen
+import ui.verification.SignupSection
 
 const val PREVIEWING = true
 
@@ -63,5 +65,5 @@ fun PreviewSpace() {
 //            Text(text)
 //        }
 //    }
-    LoginScreen()
+    SignupScreen()
 }
