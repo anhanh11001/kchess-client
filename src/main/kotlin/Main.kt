@@ -10,6 +10,7 @@ import navigation.NavScreen
 import navigation.rememberRouter
 import ui.game.GameScreen
 import ui.home.MainScreen
+import ui.verification.LoginScreen
 
 const val PREVIEWING = true
 
@@ -62,16 +63,5 @@ fun PreviewSpace() {
 //            Text(text)
 //        }
 //    }
-    MainScreen(
-        onNewGameClicked = {
-
-        },
-        onExitClicked = {
-
-        },
-        onFindRoomClicked = {
-
-        }
-    )
-
+    LoginScreen()
 }
