@@ -17,11 +17,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import data.BoardRepresentation
 import data.ChessPiece
 import ui.components.KChessSmallRoundedCorner
+import ui.components.convertToDp
 
 const val CHESS_PIECE_RATIO_WITHIN_SQUARE = 0.8f
 
@@ -109,16 +109,15 @@ fun ChessBoard(
             }
         }
 
-        if (pointerLocation.y - pieceSize / 2 >= 0 &&
-            pointerLocation.x - pieceSize / 2 >= 0
-        ) {
+        if (pointerLocation.y - pieceSize / 2 >= 0 && pointerLocation.x - pieceSize / 2 >= 0) {
             ChessPieceUI(
                 movingPiece,
                 modifier = Modifier.padding(
-                    top = with(LocalDensity.current) { (pointerLocation.y - pieceSize / 2).toDp() },
-                    start = with(LocalDensity.current) { (pointerLocation.x - pieceSize / 2).toDp() })
-                    .width(with(LocalDensity.current) { pieceSize.toDp() })
-                    .height(with(LocalDensity.current) { pieceSize.toDp() })
+                    top = convertToDp(pointerLocation.y - pieceSize / 2),
+                    start = convertToDp(pointerLocation.x - pieceSize / 2)
+                )
+                    .width(convertToDp(pieceSize))
+                    .height(convertToDp(pieceSize))
             )
         }
     }
