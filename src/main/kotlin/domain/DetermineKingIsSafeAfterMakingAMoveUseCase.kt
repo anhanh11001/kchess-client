@@ -21,11 +21,12 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
     ): Boolean {
         val adjustedBoardPosition = boardPosition.toMutableMap()
         adjustedBoardPosition.remove(chessMove.startingPosition)
+        adjustedBoardPosition.remove(chessMove.endingPosition)
         adjustedBoardPosition[chessMove.endingPosition] = chessMove.chessPiece
 
-        val kingPosition = findKingPosition(isWhiteKing, boardPosition)
-        for (location in boardPosition.keys) {
-            val piece = requireNotNull(boardPosition[location])
+        val kingPosition = findKingPosition(isWhiteKing, adjustedBoardPosition)
+        for (location in adjustedBoardPosition.keys) {
+            val piece = requireNotNull(adjustedBoardPosition[location])
             if (piece.isWhite == isWhiteKing) continue
             val captureTheKingMove = ChessMove(
                 chessPiece = piece,
@@ -35,12 +36,36 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
             )
 
             val isValidToCaptureKing = when (piece) {
-                is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(adjustedBoardPosition, captureTheKingMove)
-                is ChessPiece.Queen -> determineCorrectQueenMoveUseCase(adjustedBoardPosition, captureTheKingMove)
-                is ChessPiece.King -> determineCorrectKingMoveUseCase(adjustedBoardPosition, captureTheKingMove)
-                is ChessPiece.Rook -> determineCorrectRookMoveUseCase(adjustedBoardPosition, captureTheKingMove)
-                is ChessPiece.Bishop -> determineCorrectBishopMoveUseCase(adjustedBoardPosition, captureTheKingMove)
-                is ChessPiece.Knight -> determineCorrectKnightMoveUseCase(adjustedBoardPosition, captureTheKingMove)
+                is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(
+                    boardPosition = adjustedBoardPosition,
+                    chessMove = captureTheKingMove,
+                    checkForAttackingMoveOnly = true
+                )
+                is ChessPiece.Queen -> determineCorrectQueenMoveUseCase(
+                    boardPosition = adjustedBoardPosition,
+                    chessMove = captureTheKingMove,
+                    checkForAttackingMoveOnly = true
+                )
+                is ChessPiece.King -> determineCorrectKingMoveUseCase(
+                    boardPosition = adjustedBoardPosition,
+                    chessMove = captureTheKingMove,
+                    checkForAttackingMoveOnly = true
+                )
+                is ChessPiece.Rook -> determineCorrectRookMoveUseCase(
+                    boardPosition = adjustedBoardPosition,
+                    chessMove = captureTheKingMove,
+                    checkForAttackingMoveOnly = true
+                )
+                is ChessPiece.Bishop -> determineCorrectBishopMoveUseCase(
+                    boardPosition = adjustedBoardPosition,
+                    chessMove = captureTheKingMove,
+                    checkForAttackingMoveOnly = true
+                )
+                is ChessPiece.Knight -> determineCorrectKnightMoveUseCase(
+                    boardPosition = adjustedBoardPosition,
+                    chessMove = captureTheKingMove,
+                    checkForAttackingMoveOnly = true
+                )
             }
 
             if (isValidToCaptureKing) {

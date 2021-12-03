@@ -9,7 +9,8 @@ class DetermineCorrectPawnMoveUseCase {
 
     operator fun invoke(
         boardPosition: Map<String, ChessPiece>,
-        chessMove: ChessMove
+        chessMove: ChessMove,
+        checkForAttackingMoveOnly: Boolean = false
     ): Boolean {
         val chessPiece = chessMove.chessPiece
         require(chessPiece is ChessPiece.Pawn)
@@ -21,7 +22,7 @@ class DetermineCorrectPawnMoveUseCase {
             MoveType.Castle -> false
             is MoveType.Normal -> {
                 when {
-                    startPosition[0] - endPosition[0] == 0 -> determineValidStraightPawnMove(
+                    startPosition[0] - endPosition[0] == 0 -> !checkForAttackingMoveOnly && determineValidStraightPawnMove(
                         isWhitePawn = chessPiece.isWhite,
                         startingRow = startPosition[1].digitToInt(),
                         endingRow = endPosition[1].digitToInt(),
@@ -44,7 +45,8 @@ class DetermineCorrectPawnMoveUseCase {
                 startingPosition = chessMove.startingPosition,
                 endingPosition = endPosition,
                 boardPosition = boardPosition,
-                promotedPiece = moveType.promotedPiece
+                promotedPiece = moveType.promotedPiece,
+                checkForAttackingMoveOnly = checkForAttackingMoveOnly
             )
         }
     }
@@ -105,7 +107,8 @@ class DetermineCorrectPawnMoveUseCase {
         startingPosition: String,
         endingPosition: String,
         boardPosition: Map<String, ChessPiece>,
-        promotedPiece: ChessPiece
+        promotedPiece: ChessPiece,
+        checkForAttackingMoveOnly: Boolean
     ): Boolean {
         if (promotedPiece is ChessPiece.King || promotedPiece is ChessPiece.Pawn) return false
 
@@ -113,7 +116,7 @@ class DetermineCorrectPawnMoveUseCase {
             return when {
                 startingPosition[1].digitToInt() != 7 && endingPosition[1].digitToInt() != 8 -> false
                 startingPosition[0] == endingPosition[0] -> {
-                    boardPosition[endingPosition] == null
+                    !checkForAttackingMoveOnly && boardPosition[endingPosition] == null
                 }
                 abs(startingPosition[0] - endingPosition[0]) == 1 -> {
                     val takenPiece = boardPosition[endingPosition]
@@ -125,7 +128,7 @@ class DetermineCorrectPawnMoveUseCase {
             return when {
                 startingPosition[1].digitToInt() != 2 && endingPosition[1].digitToInt() != 1 -> false
                 startingPosition[0] == endingPosition[0] -> {
-                    boardPosition[endingPosition] == null
+                    !checkForAttackingMoveOnly && boardPosition[endingPosition] == null
                 }
                 abs(startingPosition[0] - endingPosition[0]) == 1 -> {
                     val takenPiece = boardPosition[endingPosition]

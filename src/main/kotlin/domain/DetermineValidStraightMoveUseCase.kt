@@ -9,7 +9,8 @@ class DetermineValidStraightMoveUseCase {
         boardPosition: Map<String, ChessPiece>,
         startingPosition: String,
         endingPosition: String,
-        isMovedPieceWhite: Boolean
+        isMovedPieceWhite: Boolean,
+        checkForAttackingMoveOnly: Boolean = false
     ): Boolean {
         val colDiff = abs(startingPosition[0] - endingPosition[0])
         val rowDiff = abs(startingPosition[1] - endingPosition[1])
@@ -37,7 +38,11 @@ class DetermineValidStraightMoveUseCase {
                 }
 
                 val pieceInEndingPosition = boardPosition[endingPosition]
-                return pieceInEndingPosition == null || (isMovedPieceWhite != pieceInEndingPosition.isWhite)
+                return if (checkForAttackingMoveOnly) {
+                    pieceInEndingPosition != null && isMovedPieceWhite != pieceInEndingPosition.isWhite
+                } else {
+                    pieceInEndingPosition == null || (isMovedPieceWhite != pieceInEndingPosition.isWhite)
+                }
             }
             rowDiff == 0 -> {
                 val colIncreasing = startingPosition[0] < endingPosition[0]
@@ -59,7 +64,11 @@ class DetermineValidStraightMoveUseCase {
                 }
 
                 val pieceInEndingPosition = boardPosition[endingPosition]
-                return pieceInEndingPosition == null || (isMovedPieceWhite != pieceInEndingPosition.isWhite)
+                return if (checkForAttackingMoveOnly) {
+                    pieceInEndingPosition != null && isMovedPieceWhite != pieceInEndingPosition.isWhite
+                } else {
+                    pieceInEndingPosition == null || (isMovedPieceWhite != pieceInEndingPosition.isWhite)
+                }
 
             }
             else -> return false

@@ -10,7 +10,8 @@ class DetermineCorrectRookMoveUseCase(
 
     operator fun invoke(
         boardPosition: Map<String, ChessPiece>,
-        chessMove: ChessMove
+        chessMove: ChessMove,
+        checkForAttackingMoveOnly: Boolean = false
     ): Boolean {
         val startingPosition = chessMove.startingPosition
         val endingPosition = chessMove.endingPosition
@@ -22,7 +23,8 @@ class DetermineCorrectRookMoveUseCase(
             boardPosition = boardPosition,
             startingPosition = chessMove.startingPosition,
             endingPosition = chessMove.endingPosition,
-            isMovedPieceWhite = chessMove.chessPiece.isWhite
+            isMovedPieceWhite = chessMove.chessPiece.isWhite,
+            checkForAttackingMoveOnly = checkForAttackingMoveOnly
         )
     }
 }

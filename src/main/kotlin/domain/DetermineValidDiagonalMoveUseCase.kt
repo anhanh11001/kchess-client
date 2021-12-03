@@ -9,7 +9,8 @@ class DetermineValidDiagonalMoveUseCase {
         boardPosition: Map<String, ChessPiece>,
         startingPosition: String,
         endingPosition: String,
-        isMovedPieceWhite: Boolean
+        isMovedPieceWhite: Boolean,
+        checkForAttackingMoveOnly: Boolean = false
     ): Boolean {
         val colDiff = abs(startingPosition[0] - endingPosition[0])
         val rowDiff = abs(startingPosition[1] - endingPosition[1])
@@ -34,6 +35,10 @@ class DetermineValidDiagonalMoveUseCase {
             }
         }
         val pieceInEndingPosition = boardPosition[endingPosition]
-        return pieceInEndingPosition == null || (pieceInEndingPosition.isWhite != isMovedPieceWhite)
+        return if (checkForAttackingMoveOnly) {
+            pieceInEndingPosition != null && pieceInEndingPosition.isWhite != isMovedPieceWhite
+        } else {
+            pieceInEndingPosition == null || (pieceInEndingPosition.isWhite != isMovedPieceWhite)
+        }
     }
 }
