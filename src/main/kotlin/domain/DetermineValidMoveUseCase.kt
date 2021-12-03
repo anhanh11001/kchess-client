@@ -20,9 +20,9 @@ class DetermineValidMoveUseCase(
         boardPosition: Map<String, ChessPiece>,
         chessMove: ChessMove
     ): Boolean {
-//        if (!determineCorrectMoveBasedOnGameStatusUseCase(gameStatus, chessMove)) {
-//            return false
-//        }
+        if (!determineCorrectMoveBasedOnGameStatusUseCase(gameStatus, chessMove)) {
+            return false
+        }
 
         if (boardPosition[chessMove.startingPosition] != chessMove.chessPiece) {
             return false

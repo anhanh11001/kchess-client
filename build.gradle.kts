@@ -34,6 +34,9 @@ dependencies {
     implementation("com.arkivanov.decompose:decompose:$decomposeVersion")
     implementation("com.arkivanov.decompose:extensions-compose-jetbrains:$decomposeVersion")
 
+    // Parameter Injector
+    val testParameterInjectorVersion = "1.6"
+    implementation("com.google.testparameterinjector:test-parameter-injector:$testParameterInjectorVersion")
 }
 
 tasks.test {
