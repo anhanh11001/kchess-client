@@ -62,13 +62,13 @@ fun GameScreen(
                 gameViewModel.startGame()
             },
             onNewGameSelected = {
-
+                gameViewModel.onPlayNewGame()
             },
             onDrawSelected = {
 
             },
             onResignSelected = {
-
+                gameViewModel.onPlayerResigned()
             },
             onPreviousMoveSelected = {
 
@@ -434,6 +434,9 @@ fun Timer(
     modifier: Modifier = Modifier
 ) {
     var timeInSeconds by remember { mutableStateOf(startingTimeInSeconds) }
+    if (gameStatus == GameStatus.NOT_STARTED) {
+        timeInSeconds = startingTimeInSeconds
+    }
     var shouldCountDown by remember { mutableStateOf(false) }
     shouldCountDown = (isWhite && gameStatus == GameStatus.WHITE_TURN) ||
             (!isWhite && gameStatus == GameStatus.BLACK_TURN)
