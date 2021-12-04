@@ -18,7 +18,7 @@ import ui.verification.LoginScreen
 import ui.verification.SignupScreen
 import ui.verification.SignupSection
 
-const val PREVIEWING = false
+const val PREVIEWING = true
 
 @Composable
 @Preview

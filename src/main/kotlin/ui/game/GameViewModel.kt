@@ -41,6 +41,27 @@ class GameViewModel(
         )
     )
 
+    fun startGame() {
+        val currentGameState = gameUIStateFlow.value
+        if (currentGameState.game.gameStatus == GameStatus.NOT_STARTED) {
+            val updatedGame = currentGameState.game.copy(gameStatus = GameStatus.WHITE_TURN)
+            val updatedUIState = currentGameState.copy(game = updatedGame)
+            gameUIStateFlow.value = updatedUIState
+        }
+    }
+
+    fun onTimeEnded(isWhite: Boolean) {
+        val currentGameState = gameUIStateFlow.value
+
+        val gameStatus = if (isWhite) {
+            GameStatus.BLACK_WIN
+        } else {
+            GameStatus.WHITE_WIN
+        }
+        val updatedGame = currentGameState.game.copy(gameStatus = gameStatus)
+        gameUIStateFlow.value = currentGameState.copy(game = updatedGame)
+    }
+
     fun onNextMove(chessMove: ChessMove) {
         val currentGameState = gameUIStateFlow.value
         val isValidMove = determineValidMoveUseCase(
@@ -52,7 +73,18 @@ class GameViewModel(
             val newBoardPosition = currentGameState.boardPosition.toMutableMap()
             newBoardPosition.remove(chessMove.startingPosition)
             newBoardPosition[chessMove.endingPosition] = chessMove.chessPiece
-            gameUIStateFlow.value = currentGameState.copy(boardPosition = newBoardPosition)
+
+            val gameStatus = if (chessMove.chessPiece.isWhite) {
+                GameStatus.BLACK_TURN
+            } else {
+                GameStatus.WHITE_TURN
+            }
+            val updatedGame = currentGameState.game.copy(gameStatus = gameStatus)
+
+            gameUIStateFlow.value = currentGameState.copy(
+                boardPosition = newBoardPosition,
+                game = updatedGame
+            )
         }
     }
 }

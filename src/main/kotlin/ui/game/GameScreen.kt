@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import common.TimeFormatter
+import data.Game
+import data.GameStatus
 import data.chess.BoardRepresentation
 import data.chess.ChessMove
 import data.chess.ChessPiece
@@ -26,6 +28,7 @@ import ui.chess.ChessBoard
 import ui.components.KChessSmallRoundedCorner
 import ui.components.convertToDp
 import ui.users.Avatar
+import java.lang.IllegalArgumentException
 
 @Composable
 fun GameScreen(
@@ -39,13 +42,27 @@ fun GameScreen(
             boardMapping = gameUIState.value.boardPosition,
             blackPlayer = gameUIState.value.blackPlayer,
             whitePlayer = gameUIState.value.whitePlayer,
+            game = gameUIState.value.game,
             onNewMoveMade = {
                 gameViewModel.onNextMove(it)
+            },
+            onBlackTimeEnded = {
+                gameViewModel.onTimeEnded(false)
+            },
+            onWhiteTimeEnded = {
+                gameViewModel.onTimeEnded(true)
             },
             modifier = modifier.padding(16.dp).fillMaxHeight()
         )
         GameStatisticsAndActionsSection(
             moveSequences = listOf("f1", "b1", "c2", "d3", "d4"),
+            gameStatus = gameUIState.value.game.gameStatus,
+            onStartGameSelected = {
+                gameViewModel.startGame()
+            },
+            onNewGameSelected = {
+
+            },
             onDrawSelected = {
 
             },
@@ -72,6 +89,9 @@ fun GameScreen(
 @Composable
 fun GameStatisticsAndActionsSection(
     moveSequences: List<String>,
+    gameStatus: GameStatus,
+    onStartGameSelected: () -> Unit,
+    onNewGameSelected: () -> Unit,
     onDrawSelected: () -> Unit,
     onResignSelected: () -> Unit,
     onNextMoveSelected: () -> Unit,
@@ -81,6 +101,11 @@ fun GameStatisticsAndActionsSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
+        GameStatusBar(
+            gameStatus = gameStatus,
+            onStartGameSelected = onStartGameSelected,
+            onNewGameSelected = onNewGameSelected,
+        )
         GamePastMoveView(
             moveSequences,
             modifier = Modifier.weight(1f)
@@ -94,6 +119,57 @@ fun GameStatisticsAndActionsSection(
             onFirstMoveSelected = onFirstMoveSelected,
             modifier = Modifier.height(40.dp)
         )
+    }
+}
+
+@Composable
+fun GameStatusBar(
+    gameStatus: GameStatus,
+    onStartGameSelected: () -> Unit,
+    onNewGameSelected: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (gameStatus) {
+        GameStatus.BLACK_WIN, GameStatus.WHITE_WIN, GameStatus.DRAW, GameStatus.ABORTED -> GameResultsWithNewGameButton(
+            gameStatus = gameStatus,
+            onNewGameSelected = onNewGameSelected,
+            modifier = modifier
+        )
+        GameStatus.NOT_STARTED -> {
+            Row(modifier = modifier) {
+                Button(
+                    onClick = onStartGameSelected
+                ) {
+                    Text("Start Game")
+                }
+            }
+        }
+        GameStatus.WHITE_TURN -> Text("White turn!", modifier = modifier.padding(start = 8.dp))
+        GameStatus.BLACK_TURN -> Text("Black turn!", modifier = modifier.padding(start = 8.dp))
+    }
+}
+
+@Composable
+fun GameResultsWithNewGameButton(
+    gameStatus: GameStatus,
+    onNewGameSelected: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val gameStatusText = when (gameStatus) {
+        GameStatus.ABORTED -> "The game is aborted."
+        GameStatus.BLACK_WIN -> "BLACK wins the game."
+        GameStatus.DRAW -> "WHITE and BLACK draw the game."
+        GameStatus.WHITE_WIN -> "WHITE wins the game."
+        else -> throw IllegalArgumentException("Invalid game status $gameStatus")
+    }
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(gameStatusText, modifier = Modifier.padding(end = 16.dp, start = 8.dp))
+        Button(onNewGameSelected) {
+            Text("New Game")
+        }
     }
 }
 
@@ -278,6 +354,9 @@ fun BoardSection(
     boardMapping: Map<String, ChessPiece>,
     blackPlayer: Player,
     whitePlayer: Player,
+    game: Game,
+    onWhiteTimeEnded: () -> Unit,
+    onBlackTimeEnded: () -> Unit,
     onNewMoveMade: (ChessMove) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -290,8 +369,10 @@ fun BoardSection(
         ) {
             PlayerBar(player = blackPlayer, modifier = Modifier.weight(1f))
             Timer(
-                startingTimeInSeconds = 600,
-                isWhite = false
+                startingTimeInSeconds = game.timeLimit,
+                isWhite = false,
+                gameStatus = game.gameStatus,
+                onTimeCountFinished = onBlackTimeEnded
             )
         }
 
@@ -310,8 +391,10 @@ fun BoardSection(
         ) {
             PlayerBar(player = whitePlayer, modifier = Modifier.weight(1f))
             Timer(
-                startingTimeInSeconds = 600,
-                isWhite = true
+                startingTimeInSeconds = game.timeLimit,
+                isWhite = true,
+                gameStatus = game.gameStatus,
+                onTimeCountFinished = onWhiteTimeEnded
             )
         }
     }
@@ -344,9 +427,14 @@ fun PlayerBar(
 fun Timer(
     startingTimeInSeconds: Long,
     isWhite: Boolean,
+    gameStatus: GameStatus,
+    onTimeCountFinished: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var timeInSeconds by remember { mutableStateOf(startingTimeInSeconds) }
+    var shouldCountDown by remember { mutableStateOf(false) }
+    shouldCountDown = (isWhite && gameStatus == GameStatus.WHITE_TURN) ||
+            (!isWhite && gameStatus == GameStatus.BLACK_TURN)
 
     LaunchedEffect("timer") {
         flow {
@@ -355,7 +443,12 @@ fun Timer(
                 emit(Unit)
             }
         }.collect {
-            timeInSeconds = (timeInSeconds - 1).coerceAtLeast(0)
+            if (shouldCountDown) {
+                timeInSeconds = (timeInSeconds - 1).coerceAtLeast(0)
+                if (timeInSeconds <= 0) {
+                    onTimeCountFinished()
+                }
+            }
         }
     }
 
