@@ -14,8 +14,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 data class GameUIState(
     val blackPlayer: Player,
     val whitePlayer: Player,
-    val game: Game,
-    val boardPosition: Map<String, ChessPiece>
+    val boardPosition: Map<String, ChessPiece>,
+    val gameId: Long,
+    val moveSequence: List<ChessMove> = emptyList(),
+    val gameStatus: GameStatus,
+    val timeLimit: Long
 )
 
 class GameViewModel(
@@ -27,26 +30,20 @@ class GameViewModel(
 
     val gameUIStateFlow = MutableStateFlow(
         GameUIState(
+            gameId = 1L,
             blackPlayer = MockPlayers.FABIANO_CARUANA,
             whitePlayer = MockPlayers.MAGNUS_CARLSEN,
-            game = Game(
-                gameId = 1L,
-                blackPlayerId = MockPlayers.FABIANO_CARUANA.playerId,
-                whitePlayerId = MockPlayers.MAGNUS_CARLSEN.playerId,
-                moveSequence = "",
-                gameStatus = GameStatus.NOT_STARTED,
-                timeLimit = 600L
-            ),
+            moveSequence = emptyList(),
+            gameStatus = GameStatus.NOT_STARTED,
+            timeLimit = 600L,
             boardPosition = BoardRepresentation.DEFAULT_BOARD_MAP
         )
     )
 
     fun startGame() {
         val currentGameState = gameUIStateFlow.value
-        if (currentGameState.game.gameStatus == GameStatus.NOT_STARTED) {
-            val updatedGame = currentGameState.game.copy(gameStatus = GameStatus.WHITE_TURN)
-            val updatedUIState = currentGameState.copy(game = updatedGame)
-            gameUIStateFlow.value = updatedUIState
+        if (currentGameState.gameStatus == GameStatus.NOT_STARTED) {
+            gameUIStateFlow.value = currentGameState.copy(gameStatus = GameStatus.WHITE_TURN)
         }
     }
 
@@ -58,14 +55,13 @@ class GameViewModel(
         } else {
             GameStatus.WHITE_WIN
         }
-        val updatedGame = currentGameState.game.copy(gameStatus = gameStatus)
-        gameUIStateFlow.value = currentGameState.copy(game = updatedGame)
+        gameUIStateFlow.value = currentGameState.copy(gameStatus = gameStatus)
     }
 
     fun onNextMove(chessMove: ChessMove) {
         val currentGameState = gameUIStateFlow.value
         val isValidMove = determineValidMoveUseCase(
-            gameStatus = currentGameState.game.gameStatus,
+            gameStatus = currentGameState.gameStatus,
             boardPosition = currentGameState.boardPosition,
             chessMove = chessMove
         )
@@ -79,11 +75,13 @@ class GameViewModel(
             } else {
                 GameStatus.WHITE_TURN
             }
-            val updatedGame = currentGameState.game.copy(gameStatus = gameStatus)
+            val updatedMoveSequence = currentGameState.moveSequence.toMutableList()
+            updatedMoveSequence.add(chessMove)
 
             gameUIStateFlow.value = currentGameState.copy(
                 boardPosition = newBoardPosition,
-                game = updatedGame
+                gameStatus = gameStatus,
+                moveSequence = updatedMoveSequence
             )
         }
     }

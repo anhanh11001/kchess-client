@@ -19,7 +19,6 @@ class DetermineCorrectPawnMoveUseCase {
         val endPosition = chessMove.endingPosition
 
         return when (val moveType = chessMove.moveType) {
-            MoveType.Castle -> false
             is MoveType.Normal -> {
                 when {
                     startPosition[0] - endPosition[0] == 0 -> !checkForAttackingMoveOnly && determineValidStraightPawnMove(

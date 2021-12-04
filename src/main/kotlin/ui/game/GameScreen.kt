@@ -42,7 +42,8 @@ fun GameScreen(
             boardMapping = gameUIState.value.boardPosition,
             blackPlayer = gameUIState.value.blackPlayer,
             whitePlayer = gameUIState.value.whitePlayer,
-            game = gameUIState.value.game,
+            timeLimit = gameUIState.value.timeLimit,
+            gameStatus = gameUIState.value.gameStatus,
             onNewMoveMade = {
                 gameViewModel.onNextMove(it)
             },
@@ -55,8 +56,8 @@ fun GameScreen(
             modifier = modifier.padding(16.dp).fillMaxHeight()
         )
         GameStatisticsAndActionsSection(
-            moveSequences = listOf("f1", "b1", "c2", "d3", "d4"),
-            gameStatus = gameUIState.value.game.gameStatus,
+            moveSequences = gameUIState.value.moveSequence,
+            gameStatus = gameUIState.value.gameStatus,
             onStartGameSelected = {
                 gameViewModel.startGame()
             },
@@ -88,7 +89,7 @@ fun GameScreen(
 
 @Composable
 fun GameStatisticsAndActionsSection(
-    moveSequences: List<String>,
+    moveSequences: List<ChessMove>,
     gameStatus: GameStatus,
     onStartGameSelected: () -> Unit,
     onNewGameSelected: () -> Unit,
@@ -209,7 +210,7 @@ fun GameActionBar(
 
 @Composable
 fun GamePastMoveView(
-    moveSequences: List<String>,
+    moveSequences: List<ChessMove>,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(8.dp)) {
@@ -226,8 +227,8 @@ fun GamePastMoveView(
             val secondMove = moveSequences.getOrNull((moveNumber - 1) * 2 + 1)
             MoveTile(
                 moveNumber = moveNumber,
-                firstMove = firstMove,
-                secondMove = secondMove.orEmpty()
+                firstMove = firstMove.description(),
+                secondMove = secondMove?.description().orEmpty()
             )
             moveNumber++
         }
@@ -354,7 +355,8 @@ fun BoardSection(
     boardMapping: Map<String, ChessPiece>,
     blackPlayer: Player,
     whitePlayer: Player,
-    game: Game,
+    timeLimit: Long,
+    gameStatus: GameStatus,
     onWhiteTimeEnded: () -> Unit,
     onBlackTimeEnded: () -> Unit,
     onNewMoveMade: (ChessMove) -> Unit,
@@ -369,9 +371,9 @@ fun BoardSection(
         ) {
             PlayerBar(player = blackPlayer, modifier = Modifier.weight(1f))
             Timer(
-                startingTimeInSeconds = game.timeLimit,
+                startingTimeInSeconds = timeLimit,
                 isWhite = false,
-                gameStatus = game.gameStatus,
+                gameStatus = gameStatus,
                 onTimeCountFinished = onBlackTimeEnded
             )
         }
@@ -391,9 +393,9 @@ fun BoardSection(
         ) {
             PlayerBar(player = whitePlayer, modifier = Modifier.weight(1f))
             Timer(
-                startingTimeInSeconds = game.timeLimit,
+                startingTimeInSeconds = timeLimit,
                 isWhite = true,
-                gameStatus = game.gameStatus,
+                gameStatus = gameStatus,
                 onTimeCountFinished = onWhiteTimeEnded
             )
         }
