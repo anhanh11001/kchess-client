@@ -11,8 +11,7 @@ class DetermineCorrectQueenMoveUseCase(
 
     operator fun invoke(
         boardPosition: Map<String, ChessPiece>,
-        chessMove: ChessMove,
-        checkForAttackingMoveOnly: Boolean = false
+        chessMove: ChessMove
     ): Boolean {
         val startingPosition = chessMove.startingPosition
         val endingPosition = chessMove.endingPosition
@@ -25,15 +24,13 @@ class DetermineCorrectQueenMoveUseCase(
                 boardPosition = boardPosition,
                 startingPosition = startingPosition,
                 endingPosition = endingPosition,
-                isMovedPieceWhite = chessMove.chessPiece.isWhite,
-                checkForAttackingMoveOnly = checkForAttackingMoveOnly
+                isMovedPieceWhite = chessMove.chessPiece.isWhite
             )
             colDiff == rowDiff && colDiff != 0 -> determineValidDiagonalMoveUseCase(
                 boardPosition = boardPosition,
                 startingPosition = startingPosition,
                 endingPosition = endingPosition,
-                isMovedPieceWhite = chessMove.chessPiece.isWhite,
-                checkForAttackingMoveOnly = checkForAttackingMoveOnly
+                isMovedPieceWhite = chessMove.chessPiece.isWhite
             )
             else -> false
         }

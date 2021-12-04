@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.*
 import data.chess.BoardRepresentation
 import data.chess.ChessMove
 import data.chess.ChessPiece
-import data.chess.MoveType
 import ui.components.KChessSmallRoundedCorner
 import ui.components.convertToDp
 
@@ -91,8 +90,7 @@ fun ChessBoard(
                         ChessMove(
                             chessPiece = movedPiece,
                             startingPosition = movedPieceInitialLocation,
-                            endingPosition = releasedSquare,
-                            moveType = MoveType.Normal
+                            endingPosition = releasedSquare
                         )
                     )
 

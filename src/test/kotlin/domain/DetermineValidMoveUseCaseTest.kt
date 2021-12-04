@@ -5,7 +5,6 @@ import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import data.GameStatus
 import data.chess.ChessMove
 import data.chess.ChessPiece
-import data.chess.MoveType
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,47 +43,47 @@ class DetermineValidMoveUseCaseByGameStatusTest : DetermineValidMoveUseCaseTest(
         val expectedResult: Boolean
     ) {
         BlackPlayInBlackTurn(
-            chessMove = ChessMove(ChessPiece.Pawn(false), "a7", "a6", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.Pawn(false), "a7", "a6"),
             gameStatus = GameStatus.BLACK_TURN,
             expectedResult = true
         ),
         BlackPlayInWhiteTurn(
-            chessMove = ChessMove(ChessPiece.Pawn(false), "a7", "a6", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.Pawn(false), "a7", "a6"),
             gameStatus = GameStatus.WHITE_TURN,
             expectedResult = false
         ),
         WhitePlayInWhiteTurn(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.WHITE_TURN,
             expectedResult = true
         ),
         WhitePlayInBlackTurn(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.BLACK_TURN,
             expectedResult = false
         ),
         PlayInWhiteWonGame(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.WHITE_WIN,
             expectedResult = false
         ),
         PlayInBlackWonGame(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.BLACK_WIN,
             expectedResult = false
         ),
         PlayInDrawnGame(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.DRAW,
             expectedResult = false
         ),
         PlayInNotStartedGame(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.NOT_STARTED,
             expectedResult = false
         ),
         PlayInAbortedGame(
-            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3", MoveType.Normal),
+            chessMove = ChessMove(ChessPiece.King(true), "a2", "a3"),
             gameStatus = GameStatus.ABORTED,
             expectedResult = false
         )

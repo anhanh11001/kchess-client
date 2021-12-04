@@ -13,7 +13,7 @@ val chessModule = module {
 }
 
 val gameModule = module {
-    factory { GameViewModel(get(), get(), get(), get()) }
+    factory { GameViewModel(get(), get(), get(), get(), get()) }
 }
 
 val apiModule = module {
@@ -26,7 +26,7 @@ val domainModule = module {
     factory { DetermineCorrectPawnMoveUseCase() }
     factory { DetermineCorrectRookMoveUseCase(get()) }
     factory { DetermineCorrectKnightMoveUseCase() }
-    factory { DetermineCorrectKingMoveUseCase() }
+    factory { DetermineCorrectKingMoveUseCase(get(), get(), get(), get()) }
     factory { DetermineCorrectQueenMoveUseCase(get(), get()) }
     factory { DetermineCorrectBishopMoveUseCase(get()) }
     factory { DetermineCorrectMoveBasedOnGameStatusUseCase() }
@@ -54,9 +54,11 @@ val domainModule = module {
             get(),
             get(),
             get(),
+            get(),
             get()
         )
     }
+    factory { UpdateBoardAfterMoveUseCase() }
 }
 
 

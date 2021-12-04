@@ -18,7 +18,8 @@ class DetermineValidMoveUseCase(
     operator fun invoke(
         gameStatus: GameStatus,
         boardPosition: Map<String, ChessPiece>,
-        chessMove: ChessMove
+        chessMove: ChessMove,
+        moveSequence: List<ChessMove>
     ): Boolean {
         if (!determineCorrectMoveBasedOnGameStatusUseCase(gameStatus, chessMove)) {
             return false
@@ -28,19 +29,25 @@ class DetermineValidMoveUseCase(
             return false
         }
         val isChessPieceDirectionValid = when (chessMove.chessPiece) {
-            is ChessPiece.King -> determineCorrectKingMoveUseCase(boardPosition, chessMove)
+            is ChessPiece.King -> determineCorrectKingMoveUseCase(boardPosition, chessMove, false, moveSequence)
             is ChessPiece.Queen -> determineCorrectQueenMoveUseCase(boardPosition, chessMove)
             is ChessPiece.Bishop -> determineCorrectBishopMoveUseCase(boardPosition, chessMove)
             is ChessPiece.Knight -> determineCorrectKnightMoveUseCase(boardPosition, chessMove)
             is ChessPiece.Rook -> determineCorrectRookMoveUseCase(boardPosition, chessMove)
-            is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(boardPosition, chessMove)
+            is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(
+                boardPosition,
+                chessMove,
+                false,
+                moveSequence.lastOrNull()
+            )
         }
         if (!isChessPieceDirectionValid) return false
 
         val isKingStillSafe = determineKingIsSafeAfterMakingAMoveUseCase(
             chessMove = chessMove,
             boardPosition = boardPosition,
-            isWhiteKing = chessMove.chessPiece.isWhite
+            isWhiteKing = chessMove.chessPiece.isWhite,
+            moveSequence = moveSequence
         )
         if (!isKingStillSafe) return false
 

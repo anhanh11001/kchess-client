@@ -2,7 +2,6 @@ package domain
 
 import data.chess.ChessMove
 import data.chess.ChessPiece
-import data.chess.MoveType
 import kotlin.math.abs
 
 class DetermineCorrectPawnMoveUseCase {
@@ -10,7 +9,8 @@ class DetermineCorrectPawnMoveUseCase {
     operator fun invoke(
         boardPosition: Map<String, ChessPiece>,
         chessMove: ChessMove,
-        checkForAttackingMoveOnly: Boolean = false
+        checkForAttackingMoveOnly: Boolean = false,
+        opponentLastPlayedMove: ChessMove?
     ): Boolean {
         val chessPiece = chessMove.chessPiece
         require(chessPiece is ChessPiece.Pawn)
@@ -18,8 +18,28 @@ class DetermineCorrectPawnMoveUseCase {
         val startPosition = chessMove.startingPosition
         val endPosition = chessMove.endingPosition
 
-        return when (val moveType = chessMove.moveType) {
-            is MoveType.Normal -> {
+        val movedVerticalSpace = endPosition[1].digitToInt() - startPosition[1].digitToInt()
+        if (chessPiece.isWhite &&
+            movedVerticalSpace != 1 &&
+            !(movedVerticalSpace == 2 && startPosition[1].digitToInt() == 2)
+        ) return false
+
+        if (!chessPiece.isWhite &&
+                movedVerticalSpace != -1 &&
+                !(movedVerticalSpace == -2 && startPosition[1].digitToInt() == 7)
+        ) return false
+
+        return when {
+            (chessMove.chessPiece.isWhite && endPosition[1].digitToInt() == 8) ||
+                    (!chessMove.chessPiece.isWhite && endPosition[1].digitToInt() == 1) -> determineValidPawnPromotion(
+                isWhitePawn = chessPiece.isWhite,
+                startingPosition = chessMove.startingPosition,
+                endingPosition = endPosition,
+                boardPosition = boardPosition,
+                promotedPiece = requireNotNull(chessMove.promotedPiece),
+                checkForAttackingMoveOnly = checkForAttackingMoveOnly
+            )
+            else -> {
                 when {
                     startPosition[0] - endPosition[0] == 0 -> !checkForAttackingMoveOnly && determineValidStraightPawnMove(
                         isWhitePawn = chessPiece.isWhite,
@@ -34,19 +54,13 @@ class DetermineCorrectPawnMoveUseCase {
                         startingRow = startPosition[1].digitToInt(),
                         endingRow = endPosition[1].digitToInt(),
                         endingCol = endPosition[0],
-                        boardPosition = boardPosition
+                        boardPosition = boardPosition,
+                        opponentLastPlayedMove = opponentLastPlayedMove,
+                        checkForAttackingMoveOnly = checkForAttackingMoveOnly
                     )
                     else -> false
                 }
             }
-            is MoveType.PawnPromotion -> determineValidPawnPromotion(
-                isWhitePawn = chessPiece.isWhite,
-                startingPosition = chessMove.startingPosition,
-                endingPosition = endPosition,
-                boardPosition = boardPosition,
-                promotedPiece = moveType.promotedPiece,
-                checkForAttackingMoveOnly = checkForAttackingMoveOnly
-            )
         }
     }
 
@@ -77,27 +91,24 @@ class DetermineCorrectPawnMoveUseCase {
         startingRow: Int,
         endingRow: Int,
         endingCol: Char,
-        boardPosition: Map<String, ChessPiece>
+        boardPosition: Map<String, ChessPiece>,
+        opponentLastPlayedMove: ChessMove?,
+        checkForAttackingMoveOnly: Boolean
     ): Boolean {
         val endPosition = "$endingCol$endingRow"
-        if (isWhitePawn) {
-            if (startingRow < 2 || startingRow > 6) return false
-            if (endingRow - startingRow != 1) return false
-            return if (boardPosition[endPosition] == null) {
-                // TODO: En Passant
-                false
-            } else {
-                !requireNotNull(boardPosition[endPosition]).isWhite
-            }
+        if (isWhitePawn && ((startingRow < 2 || startingRow > 6) || (endingRow - startingRow != 1))) return false
+        if (!isWhitePawn && ((startingRow > 7 || startingRow < 3) || (startingRow - endingRow != 1))) return false
+
+        return if (boardPosition[endPosition] == null) {
+            if (checkForAttackingMoveOnly) return false
+            val lastMoveChessPiece = opponentLastPlayedMove?.chessPiece as? ChessPiece.Pawn ?: return false
+            if (lastMoveChessPiece.isWhite == isWhitePawn) return false
+            if ((isWhitePawn && endingRow != 6) || (!isWhitePawn && endingRow != 3)) return false
+            if (abs(opponentLastPlayedMove.startingPosition[1].digitToInt() - opponentLastPlayedMove.endingPosition[1].digitToInt()) != 2) return false
+            if (opponentLastPlayedMove.endingPosition != "$endingCol$startingRow") return false
+            true
         } else {
-            if (startingRow > 7 || startingRow < 3) return false
-            if (startingRow - endingRow != 1) return false
-            return if (boardPosition[endPosition] == null) {
-                // TODO: En Passant
-                false
-            } else {
-                requireNotNull(boardPosition[endPosition]).isWhite
-            }
+            requireNotNull(boardPosition[endPosition]).isWhite != isWhitePawn
         }
     }
 

@@ -8,8 +8,7 @@ class DetermineCorrectKnightMoveUseCase {
 
     operator fun invoke(
         boardPosition: Map<String, ChessPiece>,
-        chessMove: ChessMove,
-        checkForAttackingMoveOnly: Boolean = false
+        chessMove: ChessMove
     ): Boolean {
         val startingPosition = chessMove.startingPosition
         val endingPosition = chessMove.endingPosition
@@ -19,11 +18,7 @@ class DetermineCorrectKnightMoveUseCase {
 
         return if ((colDiff == 1 && rowDiff == 2) || (rowDiff == 1 && colDiff == 2)) {
             val pieceInEndingPosition = boardPosition[endingPosition]
-            if (checkForAttackingMoveOnly) {
-                pieceInEndingPosition != null && pieceInEndingPosition.isWhite != chessMove.chessPiece.isWhite
-            } else {
-                pieceInEndingPosition == null || (pieceInEndingPosition.isWhite != chessMove.chessPiece.isWhite)
-            }
+            pieceInEndingPosition == null || (pieceInEndingPosition.isWhite != chessMove.chessPiece.isWhite)
         } else {
             false
         }

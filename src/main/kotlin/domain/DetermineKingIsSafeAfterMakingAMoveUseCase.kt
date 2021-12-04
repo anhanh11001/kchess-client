@@ -2,7 +2,6 @@ package domain
 
 import data.chess.ChessMove
 import data.chess.ChessPiece
-import data.chess.MoveType
 import java.lang.IllegalArgumentException
 
 class DetermineKingIsSafeAfterMakingAMoveUseCase(
@@ -12,17 +11,16 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
     private val determineCorrectKnightMoveUseCase: DetermineCorrectKnightMoveUseCase,
     private val determineCorrectRookMoveUseCase: DetermineCorrectRookMoveUseCase,
     private val determineCorrectPawnMoveUseCase: DetermineCorrectPawnMoveUseCase,
+    private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase
 ) {
 
     operator fun invoke(
         chessMove: ChessMove,
         boardPosition: Map<String, ChessPiece>,
-        isWhiteKing: Boolean
+        isWhiteKing: Boolean,
+        moveSequence: List<ChessMove>
     ): Boolean {
-        val adjustedBoardPosition = boardPosition.toMutableMap()
-        adjustedBoardPosition.remove(chessMove.startingPosition)
-        adjustedBoardPosition.remove(chessMove.endingPosition)
-        adjustedBoardPosition[chessMove.endingPosition] = chessMove.chessPiece
+        val adjustedBoardPosition = updateBoardAfterMoveUseCase(chessMove, boardPosition)
 
         val kingPosition = findKingPosition(isWhiteKing, adjustedBoardPosition)
         for (location in adjustedBoardPosition.keys) {
@@ -31,40 +29,37 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
             val captureTheKingMove = ChessMove(
                 chessPiece = piece,
                 startingPosition = location,
-                endingPosition = kingPosition,
-                moveType = MoveType.Normal // TODO: Fix this for pawn promotion and castle
+                endingPosition = kingPosition
             )
 
             val isValidToCaptureKing = when (piece) {
                 is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(
                     boardPosition = adjustedBoardPosition,
                     chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true
+                    checkForAttackingMoveOnly = true,
+                    opponentLastPlayedMove = moveSequence.lastOrNull()
                 )
                 is ChessPiece.Queen -> determineCorrectQueenMoveUseCase(
                     boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true
+                    chessMove = captureTheKingMove
                 )
                 is ChessPiece.King -> determineCorrectKingMoveUseCase(
                     boardPosition = adjustedBoardPosition,
                     chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true
+                    checkForAttackingMoveOnly = true,
+                    moveSequence = moveSequence
                 )
                 is ChessPiece.Rook -> determineCorrectRookMoveUseCase(
                     boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true
+                    chessMove = captureTheKingMove
                 )
                 is ChessPiece.Bishop -> determineCorrectBishopMoveUseCase(
                     boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true
+                    chessMove = captureTheKingMove
                 )
                 is ChessPiece.Knight -> determineCorrectKnightMoveUseCase(
                     boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true
+                    chessMove = captureTheKingMove
                 )
             }
 

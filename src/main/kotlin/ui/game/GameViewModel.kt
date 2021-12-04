@@ -5,10 +5,7 @@ import data.chess.BoardRepresentation
 import data.chess.ChessMove
 import data.chess.ChessPiece
 import data.mock.MockPlayers
-import domain.DetermineNextMoveUseCase
-import domain.DetermineValidMoveUseCase
-import domain.GetGameByGameIdUseCase
-import domain.GetPlayerByIdUseCase
+import domain.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
 data class GameUIState(
@@ -25,6 +22,7 @@ class GameViewModel(
     private val getPlayerByIdUseCase: GetPlayerByIdUseCase,
     private val getGameByGameIdUseCase: GetGameByGameIdUseCase,
     private val determineNextMoveUseCase: DetermineNextMoveUseCase,
+    private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase,
     private val determineValidMoveUseCase: DetermineValidMoveUseCase
 ) {
 
@@ -70,13 +68,11 @@ class GameViewModel(
         val isValidMove = determineValidMoveUseCase(
             gameStatus = currentGameState.gameStatus,
             boardPosition = currentGameState.boardPosition,
-            chessMove = chessMove
+            chessMove = chessMove,
+            moveSequence = currentGameState.moveSequence
         )
         if (isValidMove) {
-            val newBoardPosition = currentGameState.boardPosition.toMutableMap()
-            newBoardPosition.remove(chessMove.startingPosition)
-            newBoardPosition[chessMove.endingPosition] = chessMove.chessPiece
-
+            val newBoardPosition = updateBoardAfterMoveUseCase(chessMove, currentGameState.boardPosition)
             val gameStatus = if (chessMove.chessPiece.isWhite) {
                 GameStatus.BLACK_TURN
             } else {
