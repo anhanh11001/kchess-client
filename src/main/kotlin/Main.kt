@@ -75,16 +75,6 @@ fun main() = application {
 
 @Composable
 fun PreviewSpace() {
-//    var text by remember { mutableStateOf("Hello, World!") }
-
-//    DesktopMaterialTheme {
-//        Button(onClick = {
-//            text = "Hello, Desktop!"
-//        }) {
-//            Text(text)
-//        }
-//    }
-
     val gameViewModel: GameViewModel by inject(GameViewModel::class.java)
     GameScreen(gameViewModel = gameViewModel)
 }
