@@ -14,21 +14,36 @@ abstract class DetermineValidMoveUseCaseTest {
     protected val determineCorrectMoveBasedOnGameStatusUseCase = DetermineCorrectMoveBasedOnGameStatusUseCase()
     private val determineValidStraightMoveUseCase = DetermineValidStraightMoveUseCase()
     private val determineValidDiagonalMoveUseCase = DetermineValidDiagonalMoveUseCase()
+    private val determineCorrectQueenMoveUseCase = DetermineCorrectQueenMoveUseCase(
+        determineValidStraightMoveUseCase,
+        determineValidDiagonalMoveUseCase
+    )
+    private val determineCorrectBishopMoveUseCase = DetermineCorrectBishopMoveUseCase(determineValidDiagonalMoveUseCase)
+    private val determineCorrectKnightMoveUseCase = DetermineCorrectKnightMoveUseCase()
+    private val determineCorrectRookMoveUseCase = DetermineCorrectRookMoveUseCase(determineValidStraightMoveUseCase)
+    private val determineCorrectKingMoveUseCase = DetermineCorrectKingMoveUseCase(
+        determineCorrectQueenMoveUseCase,
+        determineCorrectBishopMoveUseCase,
+        determineCorrectKnightMoveUseCase,
+        determineCorrectRookMoveUseCase
+    )
+    private val determineCorrectPawnMoveUseCase = DetermineCorrectPawnMoveUseCase()
     protected val determineValidMoveUseCase = DetermineValidMoveUseCase(
         determineCorrectMoveBasedOnGameStatusUseCase,
-        DetermineCorrectQueenMoveUseCase(determineValidStraightMoveUseCase, determineValidDiagonalMoveUseCase),
-        DetermineCorrectKingMoveUseCase(),
-        DetermineCorrectBishopMoveUseCase(determineValidDiagonalMoveUseCase),
-        DetermineCorrectKnightMoveUseCase(),
-        DetermineCorrectRookMoveUseCase(determineValidStraightMoveUseCase),
-        DetermineCorrectPawnMoveUseCase(),
+        determineCorrectQueenMoveUseCase,
+        determineCorrectKingMoveUseCase,
+        determineCorrectBishopMoveUseCase,
+        determineCorrectKnightMoveUseCase,
+        determineCorrectRookMoveUseCase,
+        determineCorrectPawnMoveUseCase,
         DetermineKingIsSafeAfterMakingAMoveUseCase(
-            DetermineCorrectQueenMoveUseCase(determineValidStraightMoveUseCase, determineValidDiagonalMoveUseCase),
-            DetermineCorrectKingMoveUseCase(),
-            DetermineCorrectBishopMoveUseCase(determineValidDiagonalMoveUseCase),
-            DetermineCorrectKnightMoveUseCase(),
-            DetermineCorrectRookMoveUseCase(determineValidStraightMoveUseCase),
-            DetermineCorrectPawnMoveUseCase()
+            determineCorrectQueenMoveUseCase,
+            determineCorrectKingMoveUseCase,
+            determineCorrectBishopMoveUseCase,
+            determineCorrectKnightMoveUseCase,
+            determineCorrectRookMoveUseCase,
+            determineCorrectPawnMoveUseCase,
+            UpdateBoardAfterMoveUseCase()
         )
     )
 }
@@ -108,322 +123,640 @@ class DetermineValidMoveUseCaseByChessMoveTest : DetermineValidMoveUseCaseTest()
     enum class MoveTestCase(
         val chessMove: ChessMove,
         val boardPosition: Map<String, ChessPiece>,
-        val expectedResult: Boolean
+        val expectedResult: Boolean,
+        val moveSequence: List<ChessMove> = emptyList()
     ) {
         // Pawn
         WhitePawnMoveUpOneSpace(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "e2",
+                endingPosition = "e3",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = true
         ),
         WhitePawnMoveUpTwoSpace(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "e2",
+                endingPosition = "e4",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = true
         ),
         BlackPawnMoveUpOneSpace(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(false),
+                startingPosition = "e7",
+                endingPosition = "e6",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = true
         ),
         BlackPawnMoveUpTwoSpace(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(false),
+                startingPosition = "e7",
+                endingPosition = "e5",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = true
         ),
         WhitePawnCapture(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "g4",
+                endingPosition = "h5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         BlackPawnCapture(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(false),
+                startingPosition = "h5",
+                endingPosition = "g4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         WhitePawnEnPassant(
-            chessMove =,
-            boardPosition =,
-            expectedResult = true
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "e5",
+                endingPosition = "f6"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
+            expectedResult = true,
+            moveSequence = listOf(
+                ChessMove(
+                    chessPiece = ChessPiece.Pawn(false),
+                    startingPosition = "f7",
+                    endingPosition = "f5"
+                )
+            )
         ),
         BlackPawnEnPassant(
-            chessMove =,
-            boardPosition =,
-            expectedResult = true
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(false),
+                startingPosition = "c4",
+                endingPosition = "b3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
+            expectedResult = true,
+            moveSequence = listOf(
+                ChessMove(
+                    chessPiece = ChessPiece.Pawn(true),
+                    startingPosition = "b2",
+                    endingPosition = "b4"
+                )
+            )
         ),
         WhitePawnPromotion(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "b7",
+                endingPosition = "b8",
+                promotedPiece = ChessPiece.Queen(true)
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         BlackPawnPromotion(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(false),
+                startingPosition = "a2",
+                endingPosition = "a1",
+                promotedPiece = ChessPiece.Queen(false)
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedPawnMoveUpWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "f2",
+                endingPosition = "f4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = false
         ),
         FailedPawnCaptureEmptySpace(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "e2",
+                endingPosition = "d3",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedPawnMoveThatThreatenTheKing(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(false),
+                startingPosition = "d5",
+                endingPosition = "d4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = false
         ),
         FailedPawnMoveToItsTeamPiece(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Pawn(true),
+                startingPosition = "f2",
+                endingPosition = "f3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = false
         ),
 
         // Rook
         RookLeftMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(true),
+                startingPosition = "d1",
+                endingPosition = "a1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         RookRightMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(false),
+                startingPosition = "a8",
+                endingPosition = "b8"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         RookUpMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(true),
+                startingPosition = "h1",
+                endingPosition = "h3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         RookDownMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(false),
+                startingPosition = "h8",
+                endingPosition = "h7"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedRookVerticalWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(true),
+                startingPosition = "a1",
+                endingPosition = "a4",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedRookHorizontalWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(true),
+                startingPosition = "h6",
+                endingPosition = "b6"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = false
         ),
         FailedRookMoveThatThreatenTheKing(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(false),
+                startingPosition = "f6",
+                endingPosition = "f8"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = false
         ),
         FailedRookMoveToItsTeamPiece(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Rook(true),
+                startingPosition = "a1",
+                endingPosition = "a2",
+                promotedPiece = null
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
 
         // King
         KingMoveUp(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "d2",
+                endingPosition = "d3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = true
         ),
         KingMoveDown(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "d2",
+                endingPosition = "d1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = true
         ),
         KingMoveLeft(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "d2",
+                endingPosition = "c2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = true
         ),
         KingMoveRight(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "f1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         KingMoveDiagonal(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(false),
+                startingPosition = "e8",
+                endingPosition = "f7"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedKingMoveWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "e2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedKingMoveToCheckMateSpace(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "f2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_THREE,
             expectedResult = false
         ),
         QueenSideCastle(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "c1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_THREE,
             expectedResult = true
         ),
         KingSideCastle(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "g1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedKingSideCastleForMovedRook(
-            chessMove =,
-            boardPosition =,
-            expectedResult = false
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "g1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
+            expectedResult = false,
+            moveSequence = listOf(
+                ChessMove(
+                    chessPiece = ChessPiece.Rook(true),
+                    startingPosition = "h1",
+                    endingPosition = "h2"
+                ),
+                ChessMove(
+                    chessPiece = ChessPiece.Rook(true),
+                    startingPosition = "h2",
+                    endingPosition = "h1"
+                ),
+            )
         ),
         FailedKingSideCastleForMovedKing(
-            chessMove =,
-            boardPosition =,
-            expectedResult = false
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "g1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
+            expectedResult = false,
+            moveSequence = listOf(
+                ChessMove(
+                    chessPiece = ChessPiece.King(true),
+                    startingPosition = "e1",
+                    endingPosition = "f1"
+                ),
+                ChessMove(
+                    chessPiece = ChessPiece.King(true),
+                    startingPosition = "f1",
+                    endingPosition = "e1"
+                ),
+            )
         ),
         FailedQueenSideCastleForMovedRook(
-            chessMove =,
-            boardPosition =,
-            expectedResult = false
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "c1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_THREE,
+            expectedResult = false,
+            moveSequence = listOf(
+                ChessMove(
+                    chessPiece = ChessPiece.Rook(true),
+                    startingPosition = "a1",
+                    endingPosition = "a2"
+                ),
+                ChessMove(
+                    chessPiece = ChessPiece.Rook(true),
+                    startingPosition = "a2",
+                    endingPosition = "a1"
+                ),
+            )
         ),
         FailedQueenSideCastleForMovedKing(
-            chessMove =,
-            boardPosition =,
-            expectedResult = false
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+                startingPosition = "e1",
+                endingPosition = "c1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_THREE,
+            expectedResult = false,
+            moveSequence = listOf(
+                ChessMove(
+                    chessPiece = ChessPiece.King(true),
+                    startingPosition = "e1",
+                    endingPosition = "d1"
+                ),
+                ChessMove(
+                    chessPiece = ChessPiece.King(true),
+                    startingPosition = "d1",
+                    endingPosition = "e1"
+                ),
+            )
         ),
         FailedKingSideCastleForSquaresAttacked(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(false),
+                startingPosition = "e1",
+                endingPosition = "g1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_THREE,
             expectedResult = false
         ),
         FailedQueenSideCastleForSquaresAttacked(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+
+                startingPosition = "e1",
+                endingPosition = "c1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_FOUR,
             expectedResult = false
         ),
         FailedKingMoveToItsTeamPiece(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.King(true),
+
+                startingPosition = "e1",
+                endingPosition = "e2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_FOUR,
             expectedResult = false
         ),
 
         // Queen
         QueenLeftMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(false),
+                startingPosition = "d8",
+                endingPosition = "b8"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         QueenRightMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "b5",
+                endingPosition = "h5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_THREE,
             expectedResult = true
         ),
         QueenUpMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "d2",
+                endingPosition = "d3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         QueenDownMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "b3",
+                endingPosition = "b1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = true
         ),
         QueenDiagonalMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(false),
+                startingPosition = "d8",
+                endingPosition = "a5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedQueenVerticalWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "d1",
+                endingPosition = "d4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedQueenHorizontalWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "d2",
+                endingPosition = "b2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = false
         ),
         FailedQueenDiagonalWithBlocker(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "d2",
+                endingPosition = "f4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = false
         ),
         FailedQueenMoveThatThreatenTheKing(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "d1",
+                endingPosition = "g4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedQueenMoveToItsTeamPiece(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Queen(true),
+                startingPosition = "d1",
+                endingPosition = "d2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
 
         // Knight
         KnightTopLeftMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Knight(true),
+                startingPosition = "g1",
+                endingPosition = "f3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = true
         ),
         KnightTopRightMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Knight(true),
+                startingPosition = "g1",
+                endingPosition = "h3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = true
         ),
         KnightBottomLeftMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Knight(false),
+                startingPosition = "c6",
+                endingPosition = "a5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         KnightBottomRightMove(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Knight(false),
+                startingPosition = "c6",
+                endingPosition = "e5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedKnightMoveToItsTeamPiece(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Knight(false),
+                startingPosition = "h6",
+                endingPosition = "f5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = false
         ),
         FailedKnightMoveThatThreatenTheKing(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Knight(false),
+                startingPosition = "f5",
+                endingPosition = "g3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = false
         ),
 
         // Bishop
         BishopTopRightDiagonal(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(true),
+                startingPosition = "e3",
+                endingPosition = "f4"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         BishopTopLeftDiagonal(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(false),
+                startingPosition = "d7",
+                endingPosition = "c8"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         BishopBottomRightDiagonal(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(true),
+                startingPosition = "e2",
+                endingPosition = "f1"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         BishopBottomLeftDiagonal(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(false),
+                startingPosition = "g7",
+                endingPosition = "e5"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_ONE,
             expectedResult = true
         ),
         FailedBishopBlocked(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(true),
+                startingPosition = "c1",
+                endingPosition = "e3"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedBishopMoveToItsTeamPiece(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(true),
+                startingPosition = "c1",
+                endingPosition = "b2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_OPENING,
             expectedResult = false
         ),
         FailedBishopMoveThatThreatenTheKing(
-            chessMove =,
-            boardPosition =,
+            chessMove = ChessMove(
+                chessPiece = ChessPiece.Bishop(false),
+                startingPosition = "e5",
+                endingPosition = "h2"
+            ),
+            boardPosition = ChessBoardTestData.CHESS_TEST_BOARD_TWO,
             expectedResult = false
         )
     }
@@ -437,7 +770,8 @@ class DetermineValidMoveUseCaseByChessMoveTest : DetermineValidMoveUseCaseTest()
                 GameStatus.BLACK_TURN
             },
             boardPosition = moveTestCase.boardPosition,
-            chessMove = moveTestCase.chessMove
+            chessMove = moveTestCase.chessMove,
+            moveSequence = moveTestCase.moveSequence
         )
         Assert.assertEquals(moveTestCase.expectedResult, actual)
     }
