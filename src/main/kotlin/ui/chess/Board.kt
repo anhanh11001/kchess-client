@@ -2,7 +2,9 @@ package ui.chess
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +28,12 @@ import ui.components.convertToDp
 
 const val CHESS_PIECE_RATIO_WITHIN_SQUARE = 0.8f
 
+data class TemporaryMove(
+    val chessPiece: ChessPiece,
+    val initialPosition: String,
+    val endingPosition: String? = null
+)
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChessBoard(
@@ -45,16 +53,16 @@ fun ChessBoard(
         return "${colNames[colIndex]}${rowNames[rowIndex]}"
     }
 
-    var movingPieceInitialLocation: String? by remember { mutableStateOf(null) }
-    var movingPiece by remember { mutableStateOf<ChessPiece?>(null) }
+    // State
+    var nextPossibleMove by remember { mutableStateOf<TemporaryMove?>(null) }
+    var pawnPromotionMove by remember { mutableStateOf<TemporaryMove?>(null) }
     var pointerLocation by remember { mutableStateOf(Offset(0f, 0f)) }
     var pieceSize by remember { mutableStateOf(0f) }
-
     var locationMap by remember { mutableStateOf(emptyMap<String, ChessPiece>()) }
+
+    // Set up state after function recall
     val chessBoardPositionMap = locationToChessPiece.toMutableMap()
-    if (movingPieceInitialLocation != null) {
-        chessBoardPositionMap.remove(movingPieceInitialLocation)
-    }
+    nextPossibleMove?.initialPosition?.let { chessBoardPositionMap.remove(it) }
     locationMap = chessBoardPositionMap
 
     Box(
@@ -68,10 +76,9 @@ fun ChessBoard(
                 val piece = locationMap[pressedSquare]
                 if (piece != null) {
                     val newLocationMap = locationMap.toMutableMap()
-                    movingPieceInitialLocation = pressedSquare
                     newLocationMap.remove(pressedSquare)
                     locationMap = newLocationMap
-                    movingPiece = piece
+                    nextPossibleMove = TemporaryMove(piece, pressedSquare)
                 }
             }
             .onPointerEvent(PointerEventType.Release) {
@@ -79,23 +86,27 @@ fun ChessBoard(
                     currentEvent.changes[0].position,
                     size
                 ) ?: return@onPointerEvent
-                val movedPiece = movingPiece
-                val movedPieceInitialLocation = movingPieceInitialLocation
-                if (movedPiece != null && movedPieceInitialLocation != null) {
+                val temporaryMove = nextPossibleMove
+                if (temporaryMove != null) {
                     val newLocationMap = locationMap.toMutableMap()
-                    newLocationMap[movedPieceInitialLocation] = movedPiece
+                    newLocationMap[temporaryMove.initialPosition] = temporaryMove.chessPiece
                     locationMap = newLocationMap
 
-                    onNewMoveMade(
-                        ChessMove(
-                            chessPiece = movedPiece,
-                            startingPosition = movedPieceInitialLocation,
-                            endingPosition = releasedSquare
+                    if (temporaryMove.chessPiece is ChessPiece.Pawn &&
+                        (releasedSquare[1].digitToInt() == 1 || releasedSquare[1].digitToInt() == 8)
+                    ) {
+                        pawnPromotionMove = temporaryMove.copy(endingPosition = releasedSquare)
+                    } else {
+                        onNewMoveMade(
+                            ChessMove(
+                                chessPiece = temporaryMove.chessPiece,
+                                startingPosition = temporaryMove.initialPosition,
+                                endingPosition = releasedSquare
+                            )
                         )
-                    )
+                    }
 
-                    movingPieceInitialLocation = null
-                    movingPiece = null
+                    nextPossibleMove = null
                 }
             }
             .onPointerEvent(PointerEventType.Move) {
@@ -131,7 +142,7 @@ fun ChessBoard(
 
         if (pointerLocation.y - pieceSize / 2 >= 0 && pointerLocation.x - pieceSize / 2 >= 0) {
             ChessPieceUI(
-                movingPiece,
+                nextPossibleMove?.chessPiece,
                 modifier = Modifier.padding(
                     top = convertToDp(pointerLocation.y - pieceSize / 2),
                     start = convertToDp(pointerLocation.x - pieceSize / 2)
@@ -139,6 +150,68 @@ fun ChessBoard(
                     .width(convertToDp(pieceSize))
                     .height(convertToDp(pieceSize))
             )
+        }
+
+        pawnPromotionMove?.let { promotionMove ->
+            val promotedPosition = requireNotNull(promotionMove.endingPosition)
+            val squareSize = convertToDp(pieceSize / CHESS_PIECE_RATIO_WITHIN_SQUARE)
+            val leftPadding = (promotionMove.endingPosition[0] - 'a') * squareSize
+            val topPadding = if (promotionMove.endingPosition[1].digitToInt() == 1) {
+                squareSize * 4
+            } else {
+                0.dp
+            }
+            PromotedPawnPieceSelectionBar(
+                isWhite = promotionMove.chessPiece.isWhite,
+                onPieceSelected = { promotedPiece ->
+                    onNewMoveMade(
+                        ChessMove(
+                            chessPiece = promotionMove.chessPiece,
+                            startingPosition = promotionMove.initialPosition,
+                            endingPosition = promotedPosition,
+                            promotedPiece = promotedPiece
+                        )
+                    )
+                    pawnPromotionMove = null
+                },
+                modifier = Modifier
+                    .padding(top = topPadding, start = leftPadding)
+                    .width(squareSize)
+                    .aspectRatio(0.25f)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun PromotedPawnPieceSelectionBar(
+    isWhite: Boolean,
+    onPieceSelected: (ChessPiece) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    val selectableChessPiece = listOf(
+        ChessPiece.Queen(isWhite),
+        ChessPiece.Rook(isWhite),
+        ChessPiece.Knight(isWhite),
+        ChessPiece.Bishop(isWhite)
+    )
+
+    Card(
+        modifier = modifier,
+        elevation = 4.dp
+    ) {
+        Column {
+            selectableChessPiece.forEach { chessPiece ->
+                Square(
+                    isWhite = isWhite,
+                    chessPiece = chessPiece,
+                    modifier = Modifier.clickable {
+                        onPieceSelected(chessPiece)
+                    }
+                )
+            }
         }
     }
 }

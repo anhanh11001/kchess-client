@@ -9,7 +9,7 @@ class DetermineCorrectPawnMoveUseCase {
     operator fun invoke(
         boardPosition: Map<String, ChessPiece>,
         chessMove: ChessMove,
-        checkForAttackingMoveOnly: Boolean = false,
+        checkForCapturingInPlaceOnly: Boolean = false,
         opponentLastPlayedMove: ChessMove?
     ): Boolean {
         val chessPiece = chessMove.chessPiece
@@ -25,42 +25,31 @@ class DetermineCorrectPawnMoveUseCase {
         ) return false
 
         if (!chessPiece.isWhite &&
-                movedVerticalSpace != -1 &&
-                !(movedVerticalSpace == -2 && startPosition[1].digitToInt() == 7)
+            movedVerticalSpace != -1 &&
+            !(movedVerticalSpace == -2 && startPosition[1].digitToInt() == 7)
         ) return false
 
         return when {
-            (chessMove.chessPiece.isWhite && endPosition[1].digitToInt() == 8) ||
-                    (!chessMove.chessPiece.isWhite && endPosition[1].digitToInt() == 1) -> determineValidPawnPromotion(
+            startPosition[0] - endPosition[0] == 0 -> !checkForCapturingInPlaceOnly && determineValidStraightPawnMove(
                 isWhitePawn = chessPiece.isWhite,
-                startingPosition = chessMove.startingPosition,
-                endingPosition = endPosition,
+                startingRow = startPosition[1].digitToInt(),
+                endingRow = endPosition[1].digitToInt(),
+                col = startPosition[0],
                 boardPosition = boardPosition,
-                promotedPiece = requireNotNull(chessMove.promotedPiece),
-                checkForAttackingMoveOnly = checkForAttackingMoveOnly
+                promotedPiece = chessMove.promotedPiece
             )
-            else -> {
-                when {
-                    startPosition[0] - endPosition[0] == 0 -> !checkForAttackingMoveOnly && determineValidStraightPawnMove(
-                        isWhitePawn = chessPiece.isWhite,
-                        startingRow = startPosition[1].digitToInt(),
-                        endingRow = endPosition[1].digitToInt(),
-                        col = startPosition[0],
-                        boardPosition = boardPosition
-                    )
 
-                    abs(startPosition[0] - endPosition[0]) == 1 -> determineValidDiagonalPawnMove(
-                        isWhitePawn = chessPiece.isWhite,
-                        startingRow = startPosition[1].digitToInt(),
-                        endingRow = endPosition[1].digitToInt(),
-                        endingCol = endPosition[0],
-                        boardPosition = boardPosition,
-                        opponentLastPlayedMove = opponentLastPlayedMove,
-                        checkForAttackingMoveOnly = checkForAttackingMoveOnly
-                    )
-                    else -> false
-                }
-            }
+            abs(startPosition[0] - endPosition[0]) == 1 -> determineValidDiagonalPawnMove(
+                isWhitePawn = chessPiece.isWhite,
+                startingRow = startPosition[1].digitToInt(),
+                endingRow = endPosition[1].digitToInt(),
+                endingCol = endPosition[0],
+                boardPosition = boardPosition,
+                opponentLastPlayedMove = opponentLastPlayedMove,
+                checkForCapturingInPlaceOnly = checkForCapturingInPlaceOnly,
+                promotedPiece = chessMove.promotedPiece
+            )
+            else -> false
         }
     }
 
@@ -69,16 +58,21 @@ class DetermineCorrectPawnMoveUseCase {
         startingRow: Int,
         endingRow: Int,
         col: Char,
-        boardPosition: Map<String, ChessPiece>
+        boardPosition: Map<String, ChessPiece>,
+        promotedPiece: ChessPiece?
     ): Boolean {
         return if (isWhitePawn) { // White Pawn
             when {
+                endingRow == 8 -> boardPosition["$col$endingRow"] == null && promotedPiece != null &&
+                        promotedPiece !is ChessPiece.King && promotedPiece !is ChessPiece.Pawn
                 startingRow < 2 || startingRow > 7 -> false
                 startingRow == 2 && endingRow == 4 -> boardPosition["${col}3"] == null && boardPosition["${col}4"] == null
                 else -> endingRow == startingRow + 1 && boardPosition["$col$endingRow"] == null
             }
         } else { // Black Pawn
             when {
+                endingRow == 1 -> boardPosition["$col$endingRow"] == null && promotedPiece != null &&
+                        promotedPiece !is ChessPiece.King && promotedPiece !is ChessPiece.Pawn
                 startingRow < 3 || startingRow > 7 -> false
                 startingRow == 7 && endingRow == 5 -> boardPosition["${col}5"] == null && boardPosition["${col}6"] == null
                 else -> endingRow == startingRow - 1 && boardPosition["$col$endingRow"] == null
@@ -93,14 +87,17 @@ class DetermineCorrectPawnMoveUseCase {
         endingCol: Char,
         boardPosition: Map<String, ChessPiece>,
         opponentLastPlayedMove: ChessMove?,
-        checkForAttackingMoveOnly: Boolean
+        checkForCapturingInPlaceOnly: Boolean,
+        promotedPiece: ChessPiece?
     ): Boolean {
         val endPosition = "$endingCol$endingRow"
-        if (isWhitePawn && ((startingRow < 2 || startingRow > 6) || (endingRow - startingRow != 1))) return false
-        if (!isWhitePawn && ((startingRow > 7 || startingRow < 3) || (startingRow - endingRow != 1))) return false
+        if (isWhitePawn && ((startingRow < 2 || startingRow > 7) || (endingRow - startingRow != 1))) return false
+        if (!isWhitePawn && ((startingRow > 7 || startingRow < 2) || (startingRow - endingRow != 1))) return false
 
         return if (boardPosition[endPosition] == null) {
-            if (checkForAttackingMoveOnly) return false
+            // EnPassant
+            if (endingRow == 1 || endingRow == 8) return false
+            if (checkForCapturingInPlaceOnly) return false
             val lastMoveChessPiece = opponentLastPlayedMove?.chessPiece as? ChessPiece.Pawn ?: return false
             if (lastMoveChessPiece.isWhite == isWhitePawn) return false
             if ((isWhitePawn && endingRow != 6) || (!isWhitePawn && endingRow != 3)) return false
@@ -108,44 +105,9 @@ class DetermineCorrectPawnMoveUseCase {
             if (opponentLastPlayedMove.endingPosition != "$endingCol$startingRow") return false
             true
         } else {
+            if ((endingRow == 1 || endingRow == 8) && (promotedPiece == null || promotedPiece is ChessPiece.King || promotedPiece is ChessPiece.Pawn)) return false
             requireNotNull(boardPosition[endPosition]).isWhite != isWhitePawn
         }
     }
 
-    private fun determineValidPawnPromotion(
-        isWhitePawn: Boolean,
-        startingPosition: String,
-        endingPosition: String,
-        boardPosition: Map<String, ChessPiece>,
-        promotedPiece: ChessPiece,
-        checkForAttackingMoveOnly: Boolean
-    ): Boolean {
-        if (promotedPiece is ChessPiece.King || promotedPiece is ChessPiece.Pawn) return false
-
-        if (isWhitePawn) {
-            return when {
-                startingPosition[1].digitToInt() != 7 && endingPosition[1].digitToInt() != 8 -> false
-                startingPosition[0] == endingPosition[0] -> {
-                    !checkForAttackingMoveOnly && boardPosition[endingPosition] == null
-                }
-                abs(startingPosition[0] - endingPosition[0]) == 1 -> {
-                    val takenPiece = boardPosition[endingPosition]
-                    takenPiece != null && !takenPiece.isWhite
-                }
-                else -> false
-            }
-        } else {
-            return when {
-                startingPosition[1].digitToInt() != 2 && endingPosition[1].digitToInt() != 1 -> false
-                startingPosition[0] == endingPosition[0] -> {
-                    !checkForAttackingMoveOnly && boardPosition[endingPosition] == null
-                }
-                abs(startingPosition[0] - endingPosition[0]) == 1 -> {
-                    val takenPiece = boardPosition[endingPosition]
-                    takenPiece != null && !takenPiece.isWhite
-                }
-                else -> false
-            }
-        }
-    }
 }

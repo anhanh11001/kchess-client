@@ -11,6 +11,7 @@ import navigation.NavScreen
 import navigation.rememberRouter
 import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.inject
+import ui.chess.PromotedPawnPieceSelectionBar
 import ui.game.GameScreen
 import ui.game.GameViewModel
 import ui.home.MainScreen

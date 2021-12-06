@@ -26,17 +26,25 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
         for (location in adjustedBoardPosition.keys) {
             val piece = requireNotNull(adjustedBoardPosition[location])
             if (piece.isWhite == isWhiteKing) continue
+            val promotedPiece = if (piece is ChessPiece.Pawn &&
+                (kingPosition[1].digitToInt() == 1 || kingPosition[1].digitToInt() == 8)
+            ) {
+                ChessPiece.Queen(!isWhiteKing)
+            } else {
+                null
+            }
             val captureTheKingMove = ChessMove(
                 chessPiece = piece,
                 startingPosition = location,
-                endingPosition = kingPosition
+                endingPosition = kingPosition,
+                promotedPiece = promotedPiece
             )
 
             val isValidToCaptureKing = when (piece) {
                 is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(
                     boardPosition = adjustedBoardPosition,
                     chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true,
+                    checkForCapturingInPlaceOnly = true,
                     opponentLastPlayedMove = moveSequence.lastOrNull()
                 )
                 is ChessPiece.Queen -> determineCorrectQueenMoveUseCase(
@@ -46,7 +54,7 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
                 is ChessPiece.King -> determineCorrectKingMoveUseCase(
                     boardPosition = adjustedBoardPosition,
                     chessMove = captureTheKingMove,
-                    checkForAttackingMoveOnly = true,
+                    checkForCapturingOnly = true,
                     moveSequence = moveSequence
                 )
                 is ChessPiece.Rook -> determineCorrectRookMoveUseCase(
