@@ -1,16 +1,22 @@
 package domain
 
-import chessbot.BotStrategy
 import data.chess.ChessMove
 import data.chess.ChessPiece
 
-class DetermineNextRandomMoveUseCase {
-
+class DetermineNextRandomMoveUseCase(
+    private val getAllPossibleMovesUseCase: GetAllPossibleMovesUseCase
+) {
 
     operator fun invoke(
         isWhiteTurn: Boolean,
-        boardPosition: Map<String, ChessPiece>
+        boardPosition: Map<String, ChessPiece>,
+        pastMoveSequences: List<ChessMove>
     ): ChessMove {
-        return TODO()
+        val allMoves = getAllPossibleMovesUseCase(
+            isWhiteTurn = isWhiteTurn,
+            boardPosition = boardPosition,
+            pastMoveSequences = pastMoveSequences
+        )
+        return allMoves.random()
     }
 }

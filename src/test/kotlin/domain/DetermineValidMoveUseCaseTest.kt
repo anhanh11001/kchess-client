@@ -9,44 +9,7 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-abstract class DetermineValidMoveUseCaseTest {
-
-    protected val determineCorrectMoveBasedOnGameStatusUseCase = DetermineCorrectMoveBasedOnGameStatusUseCase()
-    private val determineValidStraightMoveUseCase = DetermineValidStraightMoveUseCase()
-    private val determineValidDiagonalMoveUseCase = DetermineValidDiagonalMoveUseCase()
-    private val determineCorrectQueenMoveUseCase = DetermineCorrectQueenMoveUseCase(
-        determineValidStraightMoveUseCase,
-        determineValidDiagonalMoveUseCase
-    )
-    private val determineCorrectBishopMoveUseCase = DetermineCorrectBishopMoveUseCase(determineValidDiagonalMoveUseCase)
-    private val determineCorrectKnightMoveUseCase = DetermineCorrectKnightMoveUseCase()
-    private val determineCorrectRookMoveUseCase = DetermineCorrectRookMoveUseCase(determineValidStraightMoveUseCase)
-    private val determineCorrectKingMoveUseCase = DetermineCorrectKingMoveUseCase(
-        determineCorrectQueenMoveUseCase,
-        determineCorrectBishopMoveUseCase,
-        determineCorrectKnightMoveUseCase,
-        determineCorrectRookMoveUseCase
-    )
-    private val determineCorrectPawnMoveUseCase = DetermineCorrectPawnMoveUseCase()
-    protected val determineValidMoveUseCase = DetermineValidMoveUseCase(
-        determineCorrectMoveBasedOnGameStatusUseCase,
-        determineCorrectQueenMoveUseCase,
-        determineCorrectKingMoveUseCase,
-        determineCorrectBishopMoveUseCase,
-        determineCorrectKnightMoveUseCase,
-        determineCorrectRookMoveUseCase,
-        determineCorrectPawnMoveUseCase,
-        DetermineKingIsSafeAfterMakingAMoveUseCase(
-            determineCorrectQueenMoveUseCase,
-            determineCorrectKingMoveUseCase,
-            determineCorrectBishopMoveUseCase,
-            determineCorrectKnightMoveUseCase,
-            determineCorrectRookMoveUseCase,
-            determineCorrectPawnMoveUseCase,
-            UpdateBoardAfterMoveUseCase()
-        )
-    )
-}
+abstract class DetermineValidMoveUseCaseTest : ValidatorGenerator()
 
 @RunWith(TestParameterInjector::class)
 class DetermineValidMoveUseCaseByGameStatusTest : DetermineValidMoveUseCaseTest() {

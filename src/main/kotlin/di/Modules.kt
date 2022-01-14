@@ -47,9 +47,10 @@ val domainModule = module {
         )
     }
     factory { DetermineNextMoveUseCase(get(), get(), get()) }
-    factory { DetermineNextRandomMoveUseCase() }
+    factory { DetermineNextRandomMoveUseCase(get()) }
     factory { DetermineNextDeepLearningMoveUseCase() }
     factory { DetermineNextSimpleMinimaxMoveUseCase() }
+    factory { GetAllPossibleMovesUseCase(get()) }
     factory {
         DetermineKingIsSafeAfterMakingAMoveUseCase(
             get(),

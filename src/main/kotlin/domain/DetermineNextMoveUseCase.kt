@@ -13,21 +13,25 @@ class DetermineNextMoveUseCase(
     operator fun invoke(
         botStrategy: BotStrategy,
         isWhiteTurn: Boolean,
-        boardPosition: Map<String, ChessPiece>
+        boardPosition: Map<String, ChessPiece>,
+        pastMoveSequences: List<ChessMove>
     ): ChessMove {
         return when (botStrategy) {
             BotStrategy.NOT_BOT -> throw IllegalArgumentException("Only bot player can call this domain class")
             BotStrategy.RANDOM -> determineNextRandomMoveUseCase(
                 isWhiteTurn = isWhiteTurn,
-                boardPosition = boardPosition
+                boardPosition = boardPosition,
+                pastMoveSequences = pastMoveSequences
             )
             BotStrategy.DEEP_BOT -> determineNextDeepLearningMoveUseCase(
                 isWhiteTurn = isWhiteTurn,
-                boardPosition = boardPosition
+                boardPosition = boardPosition,
+                pastMoveSequences = pastMoveSequences
             )
             BotStrategy.SIMPLE_MINIMAX -> determineNextSimpleMinimaxMoveUseCase(
                 isWhiteTurn = isWhiteTurn,
-                boardPosition = boardPosition
+                boardPosition = boardPosition,
+                pastMoveSequences = pastMoveSequences
             )
         }
     }
