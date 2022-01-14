@@ -23,7 +23,8 @@ class GameViewModel(
     private val getGameByGameIdUseCase: GetGameByGameIdUseCase,
     private val determineNextMoveUseCase: DetermineNextMoveUseCase,
     private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase,
-    private val determineValidMoveUseCase: DetermineValidMoveUseCase
+    private val determineValidMoveUseCase: DetermineValidMoveUseCase,
+    private val checkIfNextMoveAvailableUseCase: CheckIfNextMoveAvailableUseCase
 ) {
 
     val gameUIStateFlow = MutableStateFlow(GameUIState())
@@ -73,14 +74,29 @@ class GameViewModel(
         )
         if (isValidMove) {
             val newBoardPosition = updateBoardAfterMoveUseCase(chessMove, currentGameState.boardPosition)
-            val gameStatus = if (chessMove.chessPiece.isWhite) {
-                GameStatus.BLACK_TURN
-            } else {
-                GameStatus.WHITE_TURN
-            }
+            val isNextMoveFromWhitePlayer = !chessMove.chessPiece.isWhite
             val updatedMoveSequence = currentGameState.moveSequence.toMutableList()
             updatedMoveSequence.add(chessMove)
 
+            val gameStatus = when (
+                checkIfNextMoveAvailableUseCase(
+                    isWhiteMove = !chessMove.chessPiece.isWhite,
+                    boardPosition = newBoardPosition,
+                    pastMoveSequences = updatedMoveSequence
+                )
+            ) {
+                NextMoveResult.NEXT_MOVE_EXISTED -> if (isNextMoveFromWhitePlayer) {
+                    GameStatus.WHITE_TURN
+                } else {
+                    GameStatus.BLACK_TURN
+                }
+                NextMoveResult.CHECK_MATE -> if (isNextMoveFromWhitePlayer) {
+                    GameStatus.BLACK_WIN
+                } else {
+                    GameStatus.WHITE_WIN
+                }
+                NextMoveResult.STALE_MATE -> GameStatus.DRAW
+            }
             gameUIStateFlow.value = currentGameState.copy(
                 boardPosition = newBoardPosition,
                 gameStatus = gameStatus,
