@@ -21,19 +21,13 @@ class DetermineValidMoveUseCase(
         chessMove: ChessMove,
         moveSequence: List<ChessMove>
     ): Boolean {
-        println("Starting the test")
         if (!determineCorrectMoveBasedOnGameStatusUseCase(gameStatus, chessMove)) {
-            println("Failed status")
             return false
         }
-
-        println("Passed status")
 
         if (boardPosition[chessMove.startingPosition] != chessMove.chessPiece) {
-            println("Failed position ${boardPosition[chessMove.startingPosition]} ${chessMove.chessPiece}")
             return false
         }
-        println("Passed position")
 
         val isChessPieceDirectionValid = when (chessMove.chessPiece) {
             is ChessPiece.King -> determineCorrectKingMoveUseCase(boardPosition, chessMove, false, moveSequence)
@@ -50,10 +44,8 @@ class DetermineValidMoveUseCase(
         }
 
         if (!isChessPieceDirectionValid) {
-            println("Failed correct move")
             return false
         }
-        println("Passed correct move")
 
         val isKingStillSafe = determineKingIsSafeAfterMakingAMoveUseCase(
             chessMove = chessMove,
@@ -62,10 +54,8 @@ class DetermineValidMoveUseCase(
             moveSequence = moveSequence
         )
         if (!isKingStillSafe) {
-            println("Failed king safety")
             return false
         }
-        println("Passed king safety")
 
         return true
     }
