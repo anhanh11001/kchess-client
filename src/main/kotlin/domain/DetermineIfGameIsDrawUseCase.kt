@@ -15,6 +15,6 @@ class DetermineIfGameIsDrawUseCase(
     ): Boolean {
         return determineIfGameDrawnByFiftyMoveRuleUseCase(moveSequence) ||
                 determineIfGameDrawnByThreeFoldRepetitionUseCase(moveSequence) ||
-                determineIfGameDrawnByInsufficientMaterialUseCase(boardPosition.values.toSet())
+                determineIfGameDrawnByInsufficientMaterialUseCase(boardPosition)
     }
 }
