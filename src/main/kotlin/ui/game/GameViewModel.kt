@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 data class GameUIState(
@@ -40,7 +39,7 @@ class GameViewModel(
 
     init {
         botScope.launch {
-            tickerFlow(100).collect {
+            tickerFlow(DELAY_TIME_BETWEEN_BOT_MOVE).collect {
                 if (requestNextMoveForBot) {
                     requestNextMoveForBot = false
                     evaluateNextMoveForBots()
@@ -146,5 +145,9 @@ class GameViewModel(
             )
             onNextMove(botMove)
         }
+    }
+
+    private companion object {
+        private const val DELAY_TIME_BETWEEN_BOT_MOVE = 100L
     }
 }
