@@ -23,7 +23,8 @@ class GameViewModel(
     private val getGameByGameIdUseCase: GetGameByGameIdUseCase,
     private val determineNextMoveUseCase: DetermineNextMoveUseCase,
     private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase,
-    private val determineValidMoveUseCase: DetermineValidMoveUseCase
+    private val determineValidMoveUseCase: DetermineValidMoveUseCase,
+    private val checkIfNextMoveAvailableUseCase: CheckIfNextMoveAvailableUseCase
 ) {
 
     val gameUIStateFlow = MutableStateFlow(GameUIState())
@@ -73,19 +74,36 @@ class GameViewModel(
         )
         if (isValidMove) {
             val newBoardPosition = updateBoardAfterMoveUseCase(chessMove, currentGameState.boardPosition)
-            val gameStatus = if (chessMove.chessPiece.isWhite) {
-                GameStatus.BLACK_TURN
-            } else {
-                GameStatus.WHITE_TURN
-            }
-            val updatedMoveSequence = currentGameState.moveSequence.toMutableList()
-            updatedMoveSequence.add(chessMove)
 
-            gameUIStateFlow.value = currentGameState.copy(
-                boardPosition = newBoardPosition,
-                gameStatus = gameStatus,
-                moveSequence = updatedMoveSequence
-            )
+            when (
+                checkIfNextMoveAvailableUseCase(
+                    isWhiteMove = !chessMove.chessPiece.isWhite,
+                    boardPosition = newBoardPosition
+                )
+            ) {
+                NextMoveResult.NEXT_MOVE_EXISTED -> {
+                    val gameStatus = if (chessMove.chessPiece.isWhite) {
+                        GameStatus.BLACK_TURN
+                    } else {
+                        GameStatus.WHITE_TURN
+                    }
+                    val updatedMoveSequence = currentGameState.moveSequence.toMutableList()
+                    updatedMoveSequence.add(chessMove)
+
+                    gameUIStateFlow.value = currentGameState.copy(
+                        boardPosition = newBoardPosition,
+                        gameStatus = gameStatus,
+                        moveSequence = updatedMoveSequence
+                    )
+                }
+
+                NextMoveResult.CHECK_MATE -> {
+
+                }
+                NextMoveResult.STALE_MATE -> {
+
+                }
+            }
         }
     }
 }
