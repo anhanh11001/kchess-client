@@ -1,5 +1,6 @@
 package data.mock
 
+import chessbot.BotStrategy
 import data.Player
 
 object MockPlayers {
@@ -28,6 +29,7 @@ object MockPlayers {
         elo = 3000,
         imageUrl = null,
         nationality = "Internet",
-        isBot = true
+        isBot = true,
+        botStrategy = BotStrategy.RANDOM
     )
 }
