@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 data class GameUIState(
@@ -30,7 +29,8 @@ class GameViewModel(
     private val determineNextMoveUseCase: DetermineNextMoveUseCase,
     private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase,
     private val determineValidMoveUseCase: DetermineValidMoveUseCase,
-    private val checkIfNextMoveAvailableUseCase: CheckIfNextMoveAvailableUseCase
+    private val checkIfNextMoveAvailableUseCase: CheckIfNextMoveAvailableUseCase,
+    private val determineIfGameIsDrawUseCase: DetermineIfGameIsDrawUseCase
 ) {
 
     val gameUIStateFlow = MutableStateFlow(GameUIState())
@@ -106,10 +106,16 @@ class GameViewModel(
                     pastMoveSequences = updatedMoveSequence
                 )
             ) {
-                NextMoveResult.NEXT_MOVE_EXISTED -> if (isNextMoveFromWhitePlayer) {
-                    GameStatus.WHITE_TURN
-                } else {
-                    GameStatus.BLACK_TURN
+                NextMoveResult.NEXT_MOVE_EXISTED -> {
+                    val isGameDraw = determineIfGameIsDrawUseCase(
+                        boardPosition = newBoardPosition,
+                        moveSequence = updatedMoveSequence
+                    )
+                    when {
+                        isGameDraw -> GameStatus.DRAW
+                        isNextMoveFromWhitePlayer -> GameStatus.WHITE_TURN
+                        else -> GameStatus.BLACK_TURN
+                    }
                 }
                 NextMoveResult.CHECK_MATE -> if (isNextMoveFromWhitePlayer) {
                     GameStatus.BLACK_WIN
@@ -123,8 +129,9 @@ class GameViewModel(
                 gameStatus = gameStatus,
                 moveSequence = updatedMoveSequence
             )
+
+            requestNextMoveForBot = true
         }
-        requestNextMoveForBot = true
     }
 
     private fun evaluateNextMoveForBots() {

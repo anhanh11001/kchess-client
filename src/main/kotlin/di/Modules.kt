@@ -13,7 +13,7 @@ val chessModule = module {
 }
 
 val gameModule = module {
-    factory { GameViewModel(get(), get(), get(), get(), get(), get()) }
+    factory { GameViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }
 
 val apiModule = module {
@@ -70,6 +70,10 @@ val domainModule = module {
             get()
         )
     }
+    factory { DetermineIfGameIsDrawUseCase(get(), get(), get()) }
+    factory { DetermineIfGameDrawnByFiftyMoveRuleUseCase() }
+    factory { DetermineIfGameDrawnByThreeFoldRepetitionUseCase() }
+    factory { DetermineIfGameDrawnByInsufficientMaterialUseCase() }
     factory { UpdateBoardAfterMoveUseCase() }
 }
 
