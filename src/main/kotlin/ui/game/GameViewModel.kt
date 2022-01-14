@@ -74,6 +74,7 @@ class GameViewModel(
         )
         if (isValidMove) {
             val newBoardPosition = updateBoardAfterMoveUseCase(chessMove, currentGameState.boardPosition)
+            val isNextMoveFromWhitePlayer = !chessMove.chessPiece.isWhite
 
             when (
                 checkIfNextMoveAvailableUseCase(
@@ -82,10 +83,10 @@ class GameViewModel(
                 )
             ) {
                 NextMoveResult.NEXT_MOVE_EXISTED -> {
-                    val gameStatus = if (chessMove.chessPiece.isWhite) {
-                        GameStatus.BLACK_TURN
-                    } else {
+                    val gameStatus = if (isNextMoveFromWhitePlayer) {
                         GameStatus.WHITE_TURN
+                    } else {
+                        GameStatus.BLACK_TURN
                     }
                     val updatedMoveSequence = currentGameState.moveSequence.toMutableList()
                     updatedMoveSequence.add(chessMove)
@@ -98,10 +99,15 @@ class GameViewModel(
                 }
 
                 NextMoveResult.CHECK_MATE -> {
-
+                    val gameStatus = if (isNextMoveFromWhitePlayer) {
+                        GameStatus.BLACK_WIN
+                    } else {
+                        GameStatus.WHITE_WIN
+                    }
+                    gameUIStateFlow.value = currentGameState.copy(gameStatus = gameStatus)
                 }
                 NextMoveResult.STALE_MATE -> {
-
+                    gameUIStateFlow.value = currentGameState.copy(gameStatus = GameStatus.DRAW)
                 }
             }
         }
