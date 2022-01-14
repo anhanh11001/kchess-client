@@ -9,7 +9,8 @@ abstract class ValidatorGenerator {
         determineValidStraightMoveUseCase,
         determineValidDiagonalMoveUseCase
     )
-    protected val determineCorrectBishopMoveUseCase = DetermineCorrectBishopMoveUseCase(determineValidDiagonalMoveUseCase)
+    protected val determineCorrectBishopMoveUseCase =
+        DetermineCorrectBishopMoveUseCase(determineValidDiagonalMoveUseCase)
     protected val determineCorrectKnightMoveUseCase = DetermineCorrectKnightMoveUseCase()
     protected val determineCorrectRookMoveUseCase = DetermineCorrectRookMoveUseCase(determineValidStraightMoveUseCase)
     protected val determineCorrectKingMoveUseCase = DetermineCorrectKingMoveUseCase(
@@ -19,6 +20,14 @@ abstract class ValidatorGenerator {
         determineCorrectRookMoveUseCase
     )
     protected val determineCorrectPawnMoveUseCase = DetermineCorrectPawnMoveUseCase()
+    protected val determineIfKingIsValidToCapture = DetermineIfKingIsValidToCapture(
+        determineCorrectQueenMoveUseCase,
+        determineCorrectKingMoveUseCase,
+        determineCorrectBishopMoveUseCase,
+        determineCorrectKnightMoveUseCase,
+        determineCorrectRookMoveUseCase,
+        determineCorrectPawnMoveUseCase,
+    )
     protected val determineValidMoveUseCase = DetermineValidMoveUseCase(
         determineCorrectMoveBasedOnGameStatusUseCase,
         determineCorrectQueenMoveUseCase,
@@ -28,13 +37,9 @@ abstract class ValidatorGenerator {
         determineCorrectRookMoveUseCase,
         determineCorrectPawnMoveUseCase,
         DetermineKingIsSafeAfterMakingAMoveUseCase(
-            determineCorrectQueenMoveUseCase,
-            determineCorrectKingMoveUseCase,
-            determineCorrectBishopMoveUseCase,
-            determineCorrectKnightMoveUseCase,
-            determineCorrectRookMoveUseCase,
-            determineCorrectPawnMoveUseCase,
-            UpdateBoardAfterMoveUseCase()
+            UpdateBoardAfterMoveUseCase(),
+            FindKingPositionUseCase(),
+            determineIfKingIsValidToCapture
         )
     )
 }

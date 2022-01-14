@@ -5,13 +5,9 @@ import data.chess.ChessPiece
 import java.lang.IllegalArgumentException
 
 class DetermineKingIsSafeAfterMakingAMoveUseCase(
-    private val determineCorrectQueenMoveUseCase: DetermineCorrectQueenMoveUseCase,
-    private val determineCorrectKingMoveUseCase: DetermineCorrectKingMoveUseCase,
-    private val determineCorrectBishopMoveUseCase: DetermineCorrectBishopMoveUseCase,
-    private val determineCorrectKnightMoveUseCase: DetermineCorrectKnightMoveUseCase,
-    private val determineCorrectRookMoveUseCase: DetermineCorrectRookMoveUseCase,
-    private val determineCorrectPawnMoveUseCase: DetermineCorrectPawnMoveUseCase,
-    private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase
+    private val updateBoardAfterMoveUseCase: UpdateBoardAfterMoveUseCase,
+    private val findKingPositionUseCase: FindKingPositionUseCase,
+    private val determineIfKingIsValidToCapture: DetermineIfKingIsValidToCapture
 ) {
 
     operator fun invoke(
@@ -22,7 +18,7 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
     ): Boolean {
         val adjustedBoardPosition = updateBoardAfterMoveUseCase(chessMove, boardPosition)
 
-        val kingPosition = findKingPosition(isWhiteKing, adjustedBoardPosition)
+        val kingPosition = findKingPositionUseCase(isWhiteKing, adjustedBoardPosition)
         for (location in adjustedBoardPosition.keys) {
             val piece = requireNotNull(adjustedBoardPosition[location])
             if (piece.isWhite == isWhiteKing) continue
@@ -40,36 +36,11 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
                 promotedPiece = promotedPiece
             )
 
-            val isValidToCaptureKing = when (piece) {
-                is ChessPiece.Pawn -> determineCorrectPawnMoveUseCase(
-                    boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove,
-                    checkForCapturingInPlaceOnly = true,
-                    opponentLastPlayedMove = moveSequence.lastOrNull()
-                )
-                is ChessPiece.Queen -> determineCorrectQueenMoveUseCase(
-                    boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove
-                )
-                is ChessPiece.King -> determineCorrectKingMoveUseCase(
-                    boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove,
-                    checkForCapturingOnly = true,
-                    moveSequence = moveSequence
-                )
-                is ChessPiece.Rook -> determineCorrectRookMoveUseCase(
-                    boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove
-                )
-                is ChessPiece.Bishop -> determineCorrectBishopMoveUseCase(
-                    boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove
-                )
-                is ChessPiece.Knight -> determineCorrectKnightMoveUseCase(
-                    boardPosition = adjustedBoardPosition,
-                    chessMove = captureTheKingMove
-                )
-            }
+            val isValidToCaptureKing = determineIfKingIsValidToCapture(
+                captureTheKingMove = captureTheKingMove,
+                boardPosition = adjustedBoardPosition,
+                moveSequence = moveSequence
+            )
 
             if (isValidToCaptureKing) {
                 return false
@@ -77,18 +48,5 @@ class DetermineKingIsSafeAfterMakingAMoveUseCase(
         }
 
         return true
-    }
-
-    private fun findKingPosition(
-        isWhiteKing: Boolean,
-        boardPosition: Map<String, ChessPiece>
-    ): String {
-        for (position in boardPosition.keys) {
-            val piece = boardPosition[position]
-            if (piece is ChessPiece.King && piece.isWhite == isWhiteKing) {
-                return position
-            }
-        }
-        throw IllegalArgumentException("Invalid board: The board should have the king for both side.")
     }
 }
