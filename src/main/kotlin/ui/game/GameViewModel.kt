@@ -40,7 +40,7 @@ class GameViewModel(
 
     init {
         botScope.launch {
-            tickerFlow(100).collect {
+            tickerFlow(DELAY_TIME_BETWEEN_BOT_MOVES).collect {
                 if (requestNextMoveForBot) {
                     requestNextMoveForBot = false
                     evaluateNextMoveForBots()
@@ -146,5 +146,9 @@ class GameViewModel(
             )
             onNextMove(botMove)
         }
+    }
+
+    private companion object {
+        private const val DELAY_TIME_BETWEEN_BOT_MOVES = 100L
     }
 }
