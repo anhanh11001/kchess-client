@@ -22,25 +22,54 @@ class GetAllPossibleMovesUseCase(
             for (col in "abcdefgh") {
                 for (row in "12345678") {
                     val square = "$col$row"
-                    val chessMove = ChessMove(
-                        chessPiece = chessPiece,
-                        startingPosition = position,
-                        endingPosition =  square,
-                        promotedPiece = null // TODO: Handle this
-                    )
+                    val chessMoves = mutableListOf<ChessMove>()
 
-                    val isValidMove = determineValidMoveUseCase(
-                        gameStatus = if (isWhiteTurn) {
-                            GameStatus.WHITE_TURN
-                        } else {
-                            GameStatus.BLACK_TURN
-                        },
-                        boardPosition = boardPosition,
-                        chessMove = chessMove,
-                        moveSequence = pastMoveSequences
-                    )
+                    if (
+                        chessPiece is ChessPiece.Pawn &&
+                        ((chessPiece.isWhite && row == '8') ||
+                                (!chessPiece.isWhite && row == '1'))
+                    ) {
+                        val promotedPieces = listOf(
+                            ChessPiece.Queen(isWhite = chessPiece.isWhite),
+                            ChessPiece.Rook(isWhite = chessPiece.isWhite),
+                            ChessPiece.Knight(isWhite = chessPiece.isWhite),
+                            ChessPiece.Bishop(isWhite = chessPiece.isWhite)
+                        )
+                        chessMoves.addAll(
+                            promotedPieces.map { promotedPiece ->
+                                ChessMove(
+                                    chessPiece = chessPiece,
+                                    startingPosition = position,
+                                    endingPosition = square,
+                                    promotedPiece = promotedPiece
+                                )
+                            }
+                        )
+                    } else {
+                        chessMoves.add(
+                            ChessMove(
+                                chessPiece = chessPiece,
+                                startingPosition = position,
+                                endingPosition = square,
+                                promotedPiece = null
+                            )
+                        )
+                    }
 
-                    if (isValidMove) possibleMoves.add(chessMove)
+                    for (chessMove in chessMoves) {
+                        val isValidMove = determineValidMoveUseCase(
+                            gameStatus = if (isWhiteTurn) {
+                                GameStatus.WHITE_TURN
+                            } else {
+                                GameStatus.BLACK_TURN
+                            },
+                            boardPosition = boardPosition,
+                            chessMove = chessMove,
+                            moveSequence = pastMoveSequences
+                        )
+
+                        if (isValidMove) possibleMoves.add(chessMove)
+                    }
                 }
             }
         }
